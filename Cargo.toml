@@ -1,0 +1,7 @@
+[package]
+authors = ["Eliot Courtney <edgeworth.dev@gmail.com>"]
+edition = "2018"
+name = "memevis"
+version = "0.1.0"
+
+[dependencies]
