@@ -1,29 +1,36 @@
 use crate::visual::gui::layer::GblLayer;
-use crate::visual::gui::layouts::layout::{Hint, Layout, LayoutInfo};
+use crate::visual::gui::layouts::layout::{Hint, LayoutInfo};
 use crate::visual::gui::layouts::resize_layout::{ResizeLayout, ResizeState};
 use crate::visual::gui::ui::Ui;
 use crate::visual::io::Io;
 use crate::visual::render::font::Font;
 use crate::visual::render::painter::Painter;
 use crate::visual::types::{GblSz, LclSz};
+use eyre::eyre;
 use eyre::Result;
 use serde::{Deserialize, Serialize};
+use std::any::Any;
 use std::collections::HashMap;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 
 pub type FontId = u32;
 
+#[typetag::serde]
+pub trait UserData: Any {
+    fn get_any(&mut self) -> &mut dyn Any;
+}
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct WidgetMemory {
     pub pos: ResizeState,
-    pub graph: GraphState,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Memory {
     pub wid: HashMap<String, WidgetMemory>,
     pub debug: bool,
+    user: HashMap<String, Box<dyn UserData>>,
     #[serde(skip)]
     path: PathBuf,
 }
@@ -46,6 +53,7 @@ impl Memory {
         Self {
             wid: HashMap::new(),
             debug: false,
+            user: HashMap::new(),
             path: p.as_ref().to_path_buf(),
         }
     }
@@ -54,11 +62,24 @@ impl Memory {
         self.wid.entry(id.to_owned()).or_default()
     }
 
+    pub fn user<T: UserData + Default + 'static>(&mut self, id: &str) -> Result<&mut T> {
+        let any = self
+            .user
+            .entry(id.to_owned())
+            .or_insert_with(|| Box::new(T::default()))
+            .get_any();
+
+        let any = any
+            .downcast_mut::<T>()
+            .ok_or_else(|| eyre!("user object type does not match"))?;
+        Ok(any)
+    }
+
     pub fn exit(&mut self) -> Result<()> {
         self.write_json()
     }
 
-    fn write_json(&self) -> Result<()> {
+    fn write_json(&mut self) -> Result<()> {
         Ok(serde_json::to_writer_pretty(
             File::create(&self.path)?,
             self,
@@ -88,7 +109,7 @@ impl Vis {
         })
     }
 
-    pub fn begin(&mut self) -> Result<Ui<'_, impl Layout>> {
+    pub fn begin(&mut self) -> Result<Ui<'_, ResizeLayout>> {
         self.p.begin();
         self.io.begin();
         let scr_sz: LclSz = self.io.scr_sz.coerce();

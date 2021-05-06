@@ -48,6 +48,12 @@ impl Style {
     }
 }
 
+impl Default for Style {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub struct PaintCtxScope {
     pctx: Rc<Cell<PaintCtx>>,
     restore_pctx: PaintCtx,
@@ -93,8 +99,18 @@ pub struct Ui<'a, L: Layout> {
 impl<'a, L: Layout> Ui<'a, L> {
     pub fn new(c: &'a mut Vis, l: L, id: &str) -> Self {
         let s = Style::new();
-        let pctx = PaintCtx { tf: l.info().gtf, col: s.light_col, ..Default::default() };
-        Self { s, v: c, l, id: id.to_owned(), pctx: Rc::new(Cell::new(pctx)) }
+        let pctx = PaintCtx {
+            tf: l.info().gtf,
+            col: s.light_col,
+            ..Default::default()
+        };
+        Self {
+            s,
+            v: c,
+            l,
+            id: id.to_owned(),
+            pctx: Rc::new(Cell::new(pctx)),
+        }
     }
 
     pub fn m(&mut self) -> &mut Memory {
@@ -115,7 +131,10 @@ impl<'a, L: Layout> Ui<'a, L> {
 
     pub fn push(&mut self, pctx: PaintCtx) -> PaintCtxScope {
         let restore_pctx = self.pctx.replace(pctx);
-        PaintCtxScope { pctx: Rc::clone(&self.pctx), restore_pctx }
+        PaintCtxScope {
+            pctx: Rc::clone(&self.pctx),
+            restore_pctx,
+        }
     }
 }
 
@@ -190,7 +209,11 @@ impl<'a, L: Layout> Ui<'a, L> {
     }
 
     pub fn scrolled(&mut self, id: &str, l: LclLayer) -> Pt {
-        if self.hovered(id, l) { self.io().mouse_scroll } else { Pt::zero() }
+        if self.hovered(id, l) {
+            self.io().mouse_scroll
+        } else {
+            Pt::zero()
+        }
     }
 
     pub fn pressed(&mut self, id: &str, l: LclLayer) -> bool {

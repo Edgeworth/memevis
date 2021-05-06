@@ -27,3 +27,4 @@ structopt = "*"
 tempfile = "*"
 tokio = {version = "*", features = ["full"]}
 tonic = "*"
+typetag = "*"

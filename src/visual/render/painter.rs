@@ -13,22 +13,62 @@ pub type TexHandle = AtlasHandle;
 
 #[derive(Debug)]
 pub(super) enum PaintOp {
-    FillPath { p: Path },
-    FillCirc { center: LclPt, radius: f64 },
-    FillPoly { pts: Vec<LclPt> },
-    FillQuad { v: [LclPt; 4] },
-    FillRt { r: LclRt },
-    FillRRt { r: LclRt, radius: f64 },
-    StrokeLine { st: LclPt, en: LclPt },
-    StrokePath { p: Path },
-    StrokeCirc { center: LclPt, radius: f64 },
-    StrokeEllipse { center: LclPt, radii: LclSz, rot: Angle },
-    StrokePoly { pts: Vec<LclPt>, is_closed: bool },
-    StrokeQuad { v: [LclPt; 4] },
-    StrokeRt { r: LclRt },
-    StrokeRRt { r: LclRt, radius: f64 },
-    StrokeTri { v: [LclPt; 3] },
-    Texture { tex: TextureLayer },
+    FillPath {
+        p: Path,
+    },
+    FillCirc {
+        center: LclPt,
+        radius: f64,
+    },
+    FillPoly {
+        pts: Vec<LclPt>,
+    },
+    FillQuad {
+        v: [LclPt; 4],
+    },
+    FillRt {
+        r: LclRt,
+    },
+    FillRRt {
+        r: LclRt,
+        radius: f64,
+    },
+    StrokeLine {
+        st: LclPt,
+        en: LclPt,
+    },
+    StrokePath {
+        p: Path,
+    },
+    StrokeCirc {
+        center: LclPt,
+        radius: f64,
+    },
+    StrokeEllipse {
+        center: LclPt,
+        radii: LclSz,
+        rot: Angle,
+    },
+    StrokePoly {
+        pts: Vec<LclPt>,
+        is_closed: bool,
+    },
+    StrokeQuad {
+        v: [LclPt; 4],
+    },
+    StrokeRt {
+        r: LclRt,
+    },
+    StrokeRRt {
+        r: LclRt,
+        radius: f64,
+    },
+    StrokeTri {
+        v: [LclPt; 3],
+    },
+    Texture {
+        tex: TextureLayer,
+    },
 }
 
 #[derive(Debug, PartialEq, Copy, Clone)]
@@ -47,7 +87,12 @@ impl Default for PaintCtx {
 
 impl PaintCtx {
     pub fn new() -> Self {
-        Self { line_width: 1.0, z: lz(0), col: WHITE, tf: GblTf::default() }
+        Self {
+            line_width: 1.0,
+            z: lz(0),
+            col: WHITE,
+            tf: GblTf::default(),
+        }
     }
 
     pub fn tf(self, tf: GblTf) -> Self {
@@ -79,7 +124,12 @@ impl Painter {
     pub fn new() -> Self {
         let mut ts = TexStore::new();
         let atlas = Atlas::new(&mut ts);
-        Self { ops: Vec::new(), ts, cursor: CursorIcon::Default, atlas }
+        Self {
+            ops: Vec::new(),
+            ts,
+            cursor: CursorIcon::Default,
+            atlas,
+        }
     }
 
     pub fn begin(&mut self) {
@@ -120,15 +170,23 @@ impl Painter {
     }
 
     pub fn stroke_circ(&mut self, pctx: PaintCtx, center: LclPt, radius: f64) {
-        self.ops.push((pctx, PaintOp::StrokeCirc { center, radius }));
+        self.ops
+            .push((pctx, PaintOp::StrokeCirc { center, radius }));
     }
 
     pub fn stroke_ellipse(&mut self, pctx: PaintCtx, center: LclPt, radii: LclSz, rot: Angle) {
-        self.ops.push((pctx, PaintOp::StrokeEllipse { center, radii, rot }));
+        self.ops
+            .push((pctx, PaintOp::StrokeEllipse { center, radii, rot }));
     }
 
     pub fn stroke_poly(&mut self, pctx: PaintCtx, pts: Vec<LclPt>) {
-        self.ops.push((pctx, PaintOp::StrokePoly { pts, is_closed: true }));
+        self.ops.push((
+            pctx,
+            PaintOp::StrokePoly {
+                pts,
+                is_closed: true,
+            },
+        ));
     }
 
     pub fn stroke_quad(&mut self, pctx: PaintCtx, v: [LclPt; 4]) {
@@ -165,5 +223,11 @@ impl Painter {
 
     pub fn write_px(&mut self, hnd: TexHandle, p: TexPt, c: RGBA8) {
         self.atlas.write_px(&mut self.ts, hnd, p, c)
+    }
+}
+
+impl Default for Painter {
+    fn default() -> Self {
+        Self::new()
     }
 }
