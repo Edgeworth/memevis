@@ -6,8 +6,7 @@ use crate::visual::io::Io;
 use crate::visual::render::font::Font;
 use crate::visual::render::painter::Painter;
 use crate::visual::types::{GblSz, LclSz};
-use eyre::eyre;
-use eyre::Result;
+use eyre::{eyre, Result};
 use serde::{Deserialize, Serialize};
 use std::any::Any;
 use std::collections::HashMap;
@@ -43,10 +42,7 @@ impl Memory {
             f = File::open(&p);
         }
         let f = f.expect("could not open json file");
-        Self {
-            path: p.as_ref().to_path_buf(),
-            ..serde_json::from_reader(f).expect("json invalid")
-        }
+        Self { path: p.as_ref().to_path_buf(), ..serde_json::from_reader(f).expect("json invalid") }
     }
 
     pub fn new(p: impl AsRef<Path>) -> Self {
@@ -63,15 +59,11 @@ impl Memory {
     }
 
     pub fn user<T: UserData + Default + 'static>(&mut self, id: &str) -> Result<&mut T> {
-        let any = self
-            .user
-            .entry(id.to_owned())
-            .or_insert_with(|| Box::new(T::default()))
-            .get_any();
+        let any =
+            self.user.entry(id.to_owned()).or_insert_with(|| Box::new(T::default())).get_any();
 
-        let any = any
-            .downcast_mut::<T>()
-            .ok_or_else(|| eyre!("user object type does not match"))?;
+        let any =
+            any.downcast_mut::<T>().ok_or_else(|| eyre!("user object type does not match"))?;
         Ok(any)
     }
 
@@ -80,10 +72,7 @@ impl Memory {
     }
 
     fn write_json(&mut self) -> Result<()> {
-        Ok(serde_json::to_writer_pretty(
-            File::create(&self.path)?,
-            self,
-        )?)
+        Ok(serde_json::to_writer_pretty(File::create(&self.path)?, self)?)
     }
 }
 
@@ -101,12 +90,7 @@ impl Vis {
         f.insert(0, Font::new()?);
         let io = Io::new(dp_to_px, scr_sz);
         let mem = Memory::from_path(VIS_PATH);
-        Ok(Self {
-            p: Painter::new(),
-            io,
-            mem,
-            f,
-        })
+        Ok(Self { p: Painter::new(), io, mem, f })
     }
 
     pub fn begin(&mut self) -> Result<Ui<'_, ResizeLayout>> {
@@ -133,17 +117,11 @@ impl Vis {
     }
 
     pub fn layout_text(&mut self, text: &str, dp: f64) -> Result<GblSz> {
-        self.f
-            .get_mut(&0)
-            .unwrap()
-            .layout(self.io.dp_to_px, text, dp)
+        self.f.get_mut(&0).unwrap().layout(self.io.dp_to_px, text, dp)
     }
 
     pub fn draw_text(&mut self, text: &str, dp: f64, l: &GblLayer) -> Result<()> {
-        self.f
-            .get_mut(&0)
-            .unwrap()
-            .draw(&mut self.p, self.io.dp_to_px, text, dp, l)
+        self.f.get_mut(&0).unwrap().draw(&mut self.p, self.io.dp_to_px, text, dp, l)
     }
 }
 

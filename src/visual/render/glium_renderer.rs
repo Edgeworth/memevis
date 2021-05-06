@@ -49,16 +49,8 @@ impl VertexCtor {
     fn build_vertex(&self, v: Point, attrs: &[f32]) -> Vertex {
         Vertex {
             p: [v.x, v.y],
-            c: if attrs.len() == 4 {
-                attrs.try_into().unwrap()
-            } else {
-                self.c.into()
-            },
-            uv: if attrs.len() == 2 {
-                attrs.try_into().unwrap()
-            } else {
-                Default::default()
-            },
+            c: if attrs.len() == 4 { attrs.try_into().unwrap() } else { self.c.into() },
+            uv: if attrs.len() == 2 { attrs.try_into().unwrap() } else { Default::default() },
         }
     }
 }
@@ -142,10 +134,7 @@ impl GliumRenderer {
             disp,
             frame,
             draw_params: DrawParameters {
-                depth: Depth {
-                    test: DepthTest::Overwrite,
-                    ..Default::default()
-                },
+                depth: Depth { test: DepthTest::Overwrite, ..Default::default() },
                 blend: Blend::alpha_blending(),
                 ..Default::default()
             },
@@ -201,9 +190,7 @@ impl GliumRenderer {
             let mut b = Path::builder();
             match *op {
                 PaintOp::FillPath { ref p } => {
-                    self.filler
-                        .tessellate_path(&tf.path(p.clone()), &fopt, &mut buf)
-                        .serr()?;
+                    self.filler.tessellate_path(&tf.path(p.clone()), &fopt, &mut buf).serr()?;
                 }
                 PaintOp::FillCirc { center, radius } => {
                     // TODO: Size conversion of radius may be different in different axes.
@@ -214,14 +201,7 @@ impl GliumRenderer {
                 PaintOp::FillPoly { ref pts } => {
                     let points = &pts.iter().map(|v| tf.pt(*v).into()).collect::<Vec<_>>();
                     self.filler
-                        .tessellate_polygon(
-                            Polygon {
-                                points,
-                                closed: true,
-                            },
-                            &fopt,
-                            &mut buf,
-                        )
+                        .tessellate_polygon(Polygon { points, closed: true }, &fopt, &mut buf)
                         .serr()?;
                 }
                 PaintOp::FillQuad { v } => {
@@ -234,14 +214,10 @@ impl GliumRenderer {
                         ],
                         closed: true,
                     });
-                    self.filler
-                        .tessellate_path(&b.build(), &fopt, &mut buf)
-                        .serr()?;
+                    self.filler.tessellate_path(&b.build(), &fopt, &mut buf).serr()?;
                 }
                 PaintOp::FillRt { r } => {
-                    self.filler
-                        .tessellate_rectangle(&tf.rt(r).into(), &fopt, &mut buf)
-                        .serr()?;
+                    self.filler.tessellate_rectangle(&tf.rt(r).into(), &fopt, &mut buf).serr()?;
                 }
                 PaintOp::FillRRt { r, radius } => {
                     // TODO: Ignores scaling with different x and y scales.
@@ -253,24 +229,18 @@ impl GliumRenderer {
                         bottom_right: radii.w as f32,
                     };
                     b.add_rounded_rectangle(&tf.rt(r).into(), radii, Winding::Positive);
-                    self.filler
-                        .tessellate_path(&b.build(), &fopt, &mut buf)
-                        .serr()?;
+                    self.filler.tessellate_path(&b.build(), &fopt, &mut buf).serr()?;
                 }
                 PaintOp::StrokeLine { st, en } => {
                     b.add_line_segment(&LineSegment {
                         from: tf.pt(st).into(),
                         to: tf.pt(en).into(),
                     });
-                    self.stroker
-                        .tessellate_path(&b.build(), &sopt, &mut buf)
-                        .serr()?;
+                    self.stroker.tessellate_path(&b.build(), &sopt, &mut buf).serr()?;
                 }
 
                 PaintOp::StrokePath { ref p } => {
-                    self.stroker
-                        .tessellate_path(&tf.path(p.clone()), &sopt, &mut buf)
-                        .serr()?;
+                    self.stroker.tessellate_path(&tf.path(p.clone()), &sopt, &mut buf).serr()?;
                 }
                 PaintOp::StrokeCirc { center, radius } => {
                     self.stroker
@@ -284,21 +254,12 @@ impl GliumRenderer {
                         rot,
                         Winding::Positive,
                     );
-                    self.stroker
-                        .tessellate_path(&b.build(), &sopt, &mut buf)
-                        .serr()?;
+                    self.stroker.tessellate_path(&b.build(), &sopt, &mut buf).serr()?;
                 }
                 PaintOp::StrokePoly { ref pts, is_closed } => {
                     let points = &pts.iter().map(|v| tf.pt(*v).into()).collect::<Vec<_>>();
                     self.stroker
-                        .tessellate_polygon(
-                            Polygon {
-                                points,
-                                closed: is_closed,
-                            },
-                            &sopt,
-                            &mut buf,
-                        )
+                        .tessellate_polygon(Polygon { points, closed: is_closed }, &sopt, &mut buf)
                         .serr()?;
                 }
                 PaintOp::StrokeQuad { v } => {
@@ -311,14 +272,10 @@ impl GliumRenderer {
                         ],
                         closed: true,
                     });
-                    self.stroker
-                        .tessellate_path(&b.build(), &sopt, &mut buf)
-                        .serr()?;
+                    self.stroker.tessellate_path(&b.build(), &sopt, &mut buf).serr()?;
                 }
                 PaintOp::StrokeRt { r } => {
-                    self.stroker
-                        .tessellate_rectangle(&tf.rt(r).into(), &sopt, &mut buf)
-                        .serr()?;
+                    self.stroker.tessellate_rectangle(&tf.rt(r).into(), &sopt, &mut buf).serr()?;
                 }
                 PaintOp::StrokeRRt { r, radius } => {
                     // TODO: Ignores scaling with different x and y scales.
@@ -330,9 +287,7 @@ impl GliumRenderer {
                         bottom_right: radii.w as f32,
                     };
                     b.add_rounded_rectangle(&tf.rt(r).into(), radii, Winding::Positive);
-                    self.stroker
-                        .tessellate_path(&b.build(), &sopt, &mut buf)
-                        .serr()?;
+                    self.stroker.tessellate_path(&b.build(), &sopt, &mut buf).serr()?;
                 }
                 PaintOp::StrokeTri { v } => {
                     self.stroker
@@ -357,9 +312,7 @@ impl GliumRenderer {
                     b.line_to(tex.r.tr().into(), &tex.uv.br().to_f32().to_arr());
                     b.line_to(tex.r.tl().into(), &tex.uv.bl().to_f32().to_arr());
                     b.end(true);
-                    self.filler
-                        .tessellate_path(&b.build(), &fopt, &mut buf)
-                        .serr()?;
+                    self.filler.tessellate_path(&b.build(), &fopt, &mut buf).serr()?;
                 }
             }
         }
@@ -379,13 +332,10 @@ impl GliumRenderer {
             if let Some(tid) = tex {
                 uni.add_ref(
                     "sampler",
-                    self.texmap
-                        .get(&tid)
-                        .ok_or_else(|| eyre!("unknown texture id"))?,
+                    self.texmap.get(&tid).ok_or_else(|| eyre!("unknown texture id"))?,
                 );
             }
-            dtx.frame
-                .draw(&vertices, &indices, &self.prog, &uni, &dtx.draw_params)?;
+            dtx.frame.draw(&vertices, &indices, &self.prog, &uni, &dtx.draw_params)?;
         }
         Ok(())
     }
