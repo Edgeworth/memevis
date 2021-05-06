@@ -43,16 +43,16 @@ impl Ctx {
     pub fn run(
         mut self,
         ev: EventLoop<()>,
-        f: impl FnMut(&mut Ui<'_, ResizeLayout>) -> Result<()>,
+        mut f: impl FnMut(&mut Ui<'_, ResizeLayout>) -> Result<()> + 'static,
     ) -> Result<()> {
-        ev.run(move |e, _, flow| self.event_loop(e, flow, f).unwrap())
+        ev.run(move |e, _, flow| self.event_loop(e, flow, &mut f).unwrap())
     }
 
     fn event_loop(
         &mut self,
         e: Event<'_, ()>,
         flow: &mut ControlFlow,
-        f: impl FnMut(&mut Ui<'_, ResizeLayout>) -> Result<()>,
+        f: &mut impl FnMut(&mut Ui<'_, ResizeLayout>) -> Result<()>,
     ) -> Result<()> {
         *flow = ControlFlow::Wait;
         match e {
