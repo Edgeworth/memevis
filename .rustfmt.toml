@@ -1,0 +1,4 @@
+imports_granularity = "Module"
+max_width = 100 # 100 length lines
+newline_style = "Unix"
+width_heuristics = "Max" # Let arrays, fn chains, etc go up to max_width.
