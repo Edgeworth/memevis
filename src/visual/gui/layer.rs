@@ -17,11 +17,7 @@ pub struct Layer<U> {
 
 impl<U: Basic> Layer<U> {
     pub const fn new(r: Rt2D<f64, U>, z: ZOrder<U>) -> Self {
-        Self {
-            r,
-            z,
-            _u: PhantomData,
-        }
+        Self { r, z, _u: PhantomData }
     }
 
     pub fn coerce<V: Basic>(&self) -> Layer<V> {
@@ -55,12 +51,7 @@ pub struct LayerTf<S, T> {
 
 impl<S: Basic, T: Basic> LayerTf<S, T> {
     pub const fn new(off: Pt2D<f64, T>, z: ZOrder<T>) -> Self {
-        Self {
-            off,
-            z,
-            _s: PhantomData,
-            _t: PhantomData,
-        }
+        Self { off, z, _s: PhantomData, _t: PhantomData }
     }
 
     pub fn concat<U: Basic>(&self, tf: &LayerTf<T, U>) -> LayerTf<S, U> {

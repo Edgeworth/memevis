@@ -235,23 +235,11 @@ impl<T: Number, U: Basic> Zero for Rt2D<T, U> {
 
 impl<T: Number, U: Basic> Rt2D<T, U> {
     pub const fn new(x: T, y: T, w: T, h: T) -> Self {
-        Self {
-            x,
-            y,
-            w,
-            h,
-            _u: PhantomData,
-        }
+        Self { x, y, w, h, _u: PhantomData }
     }
 
     pub const fn ptsz(p: Pt2D<T, U>, sz: Sz2D<T, U>) -> Self {
-        Self {
-            x: p.x,
-            y: p.y,
-            w: sz.w,
-            h: sz.h,
-            _u: PhantomData,
-        }
+        Self { x: p.x, y: p.y, w: sz.w, h: sz.h, _u: PhantomData }
     }
 
     pub fn from_sz(sz: Sz2D<T, U>) -> Self {
@@ -309,12 +297,7 @@ impl<T: Number, U: Basic> Rt2D<T, U> {
         let v2 = num::cast::<i32, T>(2).unwrap();
         let wsub = if v2 * dx < self.w { v2 * dx } else { self.w };
         let hsub = if v2 * dy < self.h { v2 * dy } else { self.h };
-        Rt2D::new(
-            self.x + wsub / v2,
-            self.y + hsub / v2,
-            self.w - wsub,
-            self.h - hsub,
-        )
+        Rt2D::new(self.x + wsub / v2, self.y + hsub / v2, self.w - wsub, self.h - hsub)
     }
 
     pub fn to_f64(self) -> Rt2D<f64, U> {
@@ -360,11 +343,7 @@ impl<T: Number + Neg<Output = T>, U> Neg for Pt2D<T, U> {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
-        Self {
-            x: -self.x,
-            y: -self.y,
-            _u: PhantomData,
-        }
+        Self { x: -self.x, y: -self.y, _u: PhantomData }
     }
 }
 
@@ -380,11 +359,7 @@ impl<T: Number, U: Basic> Zero for Pt2D<T, U> {
 
 impl<T: Number, U> Pt2D<T, U> {
     pub const fn new(x: T, y: T) -> Self {
-        Self {
-            x,
-            y,
-            _u: PhantomData,
-        }
+        Self { x, y, _u: PhantomData }
     }
 
     pub const fn coerce<V>(&self) -> Pt2D<T, V> {
@@ -392,17 +367,11 @@ impl<T: Number, U> Pt2D<T, U> {
     }
 
     pub fn to_f64(&self) -> Pt2D<f64, U> {
-        Pt2D::new(
-            NumCast::from(self.x).unwrap(),
-            NumCast::from(self.y).unwrap(),
-        )
+        Pt2D::new(NumCast::from(self.x).unwrap(), NumCast::from(self.y).unwrap())
     }
 
     pub fn to_f32(&self) -> Pt2D<f32, U> {
-        Pt2D::new(
-            NumCast::from(self.x).unwrap(),
-            NumCast::from(self.y).unwrap(),
-        )
+        Pt2D::new(NumCast::from(self.x).unwrap(), NumCast::from(self.y).unwrap())
     }
 
     pub fn to_arr(&self) -> [T; 2] {
@@ -470,11 +439,7 @@ impl<T: Number, U: Basic> Zero for Sz2D<T, U> {
 
 impl<T: Number, U> Sz2D<T, U> {
     pub const fn new(w: T, h: T) -> Self {
-        Self {
-            w,
-            h,
-            _u: PhantomData,
-        }
+        Self { w, h, _u: PhantomData }
     }
 
     pub const fn coerce<V>(&self) -> Sz2D<T, V> {
@@ -482,17 +447,11 @@ impl<T: Number, U> Sz2D<T, U> {
     }
 
     pub fn to_f64(&self) -> Sz2D<f64, U> {
-        Sz2D::new(
-            NumCast::from(self.w).unwrap(),
-            NumCast::from(self.h).unwrap(),
-        )
+        Sz2D::new(NumCast::from(self.w).unwrap(), NumCast::from(self.h).unwrap())
     }
 
     pub fn to_u32(&self) -> Sz2D<u32, U> {
-        Sz2D::new(
-            NumCast::from(self.w).unwrap(),
-            NumCast::from(self.h).unwrap(),
-        )
+        Sz2D::new(NumCast::from(self.w).unwrap(), NumCast::from(self.h).unwrap())
     }
 
     pub fn area(&self) -> T {
@@ -500,17 +459,11 @@ impl<T: Number, U> Sz2D<T, U> {
     }
 
     pub fn min(self, o: Sz2D<T, U>) -> Self {
-        Self::new(
-            if self.w < o.w { self.w } else { o.w },
-            if self.h < o.h { self.h } else { o.h },
-        )
+        Self::new(if self.w < o.w { self.w } else { o.w }, if self.h < o.h { self.h } else { o.h })
     }
 
     pub fn max(self, o: Sz2D<T, U>) -> Self {
-        Self::new(
-            if self.w > o.w { self.w } else { o.w },
-            if self.h > o.h { self.h } else { o.h },
-        )
+        Self::new(if self.w > o.w { self.w } else { o.w }, if self.h > o.h { self.h } else { o.h })
     }
 }
 
@@ -610,17 +563,11 @@ pub fn trt<X: NumCast, Y: NumCast, W: NumCast, H: NumCast>(x: X, y: Y, w: W, h: 
 }
 
 pub fn tpt<X: NumCast, Y: NumCast>(x: X, y: Y) -> TexPt {
-    Pt2D::new(
-        num::cast::<X, u32>(x).unwrap(),
-        num::cast::<Y, u32>(y).unwrap(),
-    )
+    Pt2D::new(num::cast::<X, u32>(x).unwrap(), num::cast::<Y, u32>(y).unwrap())
 }
 
 pub fn tsz<W: NumCast, H: NumCast>(w: W, h: H) -> TexSz {
-    Sz2D::new(
-        num::cast::<W, u32>(w).unwrap(),
-        num::cast::<H, u32>(h).unwrap(),
-    )
+    Sz2D::new(num::cast::<W, u32>(w).unwrap(), num::cast::<H, u32>(h).unwrap())
 }
 
 impl<T: Num + NumCast> From<PhysicalSize<T>> for TexSz {
@@ -662,17 +609,11 @@ pub fn grt<X: NumCast, Y: NumCast, W: NumCast, H: NumCast>(x: X, y: Y, w: W, h: 
 }
 
 pub fn gpt<X: NumCast, Y: NumCast>(x: X, y: Y) -> GblPt {
-    Pt2D::new(
-        num::cast::<X, f64>(x).unwrap(),
-        num::cast::<Y, f64>(y).unwrap(),
-    )
+    Pt2D::new(num::cast::<X, f64>(x).unwrap(), num::cast::<Y, f64>(y).unwrap())
 }
 
 pub fn gsz<W: NumCast, H: NumCast>(w: W, h: H) -> GblSz {
-    Sz2D::new(
-        num::cast::<W, f64>(w).unwrap(),
-        num::cast::<H, f64>(h).unwrap(),
-    )
+    Sz2D::new(num::cast::<W, f64>(w).unwrap(), num::cast::<H, f64>(h).unwrap())
 }
 
 impl<T: Num + NumCast> From<LogicalSize<T>> for GblSz {
@@ -720,17 +661,11 @@ pub fn lrt<X: NumCast, Y: NumCast, W: NumCast, H: NumCast>(x: X, y: Y, w: W, h: 
 }
 
 pub fn lpt<X: NumCast, Y: NumCast>(x: X, y: Y) -> LclPt {
-    Pt2D::new(
-        num::cast::<X, f64>(x).unwrap(),
-        num::cast::<Y, f64>(y).unwrap(),
-    )
+    Pt2D::new(num::cast::<X, f64>(x).unwrap(), num::cast::<Y, f64>(y).unwrap())
 }
 
 pub fn lsz<W: NumCast, H: NumCast>(w: W, h: H) -> LclSz {
-    Sz2D::new(
-        num::cast::<W, f64>(w).unwrap(),
-        num::cast::<H, f64>(h).unwrap(),
-    )
+    Sz2D::new(num::cast::<W, f64>(w).unwrap(), num::cast::<H, f64>(h).unwrap())
 }
 
 pub fn lz<Z: NumCast>(z: Z) -> LclZ {
@@ -774,10 +709,7 @@ pub fn rt<X: NumCast, Y: NumCast, W: NumCast, H: NumCast>(x: X, y: Y, w: W, h: H
 }
 
 pub fn pt<X: NumCast, Y: NumCast>(x: X, y: Y) -> Pt {
-    Pt2D::new(
-        num::cast::<X, f64>(x).unwrap(),
-        num::cast::<Y, f64>(y).unwrap(),
-    )
+    Pt2D::new(num::cast::<X, f64>(x).unwrap(), num::cast::<Y, f64>(y).unwrap())
 }
 
 pub const MAX_Z: LclZ = ZOrder::new(100000000);

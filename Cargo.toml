@@ -5,8 +5,6 @@ name = "memevis"
 version = "0.1.0"
 
 [dependencies]
-chrono = "*"
-color-eyre = "*"
 derive_more = "*"
 eyre = "*"
 freetype-rs = "*"
@@ -18,13 +16,8 @@ lyon = "*"
 num = "*"
 num-traits = "*"
 paste = "*"
-pretty_env_logger = "*"
-prost = "*"
 rgb = "*"
 serde = {version = "*", features = ["derive"]}
 serde_json = "*"
-structopt = "*"
 tempfile = "*"
-tokio = {version = "*", features = ["full"]}
-tonic = "*"
 typetag = "*"
