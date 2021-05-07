@@ -17,22 +17,22 @@ impl PaintCtxScope {
         Self { pctx, restore_pctx }
     }
 
-    pub fn tf(self, tf: GblTf) -> Self {
+    pub fn tf(&self, tf: GblTf) -> &Self {
         self.pctx.set(self.pctx.get().tf(tf));
         self
     }
 
-    pub fn col(self, col: Col) -> Self {
+    pub fn col(&self, col: Col) -> &Self {
         self.pctx.set(self.pctx.get().col(col));
         self
     }
 
-    pub fn z(self, z: LclZ) -> Self {
+    pub fn z(&self, z: LclZ) -> &Self {
         self.pctx.set(self.pctx.get().z(z));
         self
     }
 
-    pub fn line_width(self, line_width: f64) -> Self {
+    pub fn line_width(&self, line_width: f64) -> &Self {
         self.pctx.set(self.pctx.get().line_width(line_width));
         self
     }

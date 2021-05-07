@@ -35,7 +35,8 @@ impl<F: FnMut(&mut Ui<'_>) -> Result<()>> Widget for Window<F> {
             },
         )?;
 
-        let scope = ui.push().z(l.z - lz(1)).col(ui.s.dark_col.alpha(0.95));
+        let scope = ui.push();
+        scope.z(l.z - lz(1)).col(ui.s.dark_col.alpha(0.95));
         ui.fill_rrt(l.r, 4.0);
         title_r.w = l.r.w; // Expand to width of window.
 
