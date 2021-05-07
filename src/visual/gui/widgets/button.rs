@@ -1,31 +1,35 @@
-use crate::visual::gui::layouts::layout::{Hint, Layout, SzOpt};
+use crate::visual::gui::layouts::hint::Hint;
+use crate::visual::gui::layouts::layout::Layout;
 use crate::visual::gui::layouts::vert_layout::VertLayout;
 use crate::visual::gui::ui::Ui;
 use crate::visual::gui::widgets::label::Label;
 use crate::visual::gui::widgets::widget::{combine_ids, Resp, Widget};
 use eyre::Result;
-use std::marker::PhantomData;
 
 #[derive(Debug)]
-pub struct Button<L: Layout, F: FnOnce(&mut Ui<'_, L>)> {
+pub struct Button<F: FnOnce(&mut Ui)> {
     label: Label,
     cb: Option<F>,
-    _u: PhantomData<L>,
 }
 
-impl<L: Layout, F: FnOnce(&mut Ui<'_, L>)> Button<L, F> {
+impl<F: FnOnce(&mut Ui)> Button<F> {
     pub fn new(text: &str, cb: F) -> Self {
-        Self { label: Label::new(text), cb: Some(cb), _u: PhantomData }
+        Self { label: Label::new(text), cb: Some(cb) }
     }
 }
 
-impl<L: Layout, F: FnOnce(&mut Ui<'_, L>)> Widget<L> for Button<L, F> {
-    fn ui(&mut self, ui: &mut Ui<'_, L>) -> Result<Resp> {
+impl<F: FnOnce(&mut Ui)> Widget for Button<F> {
+    fn ui(&mut self, ui: &mut Ui) -> Result<Resp> {
         let id = ui.wid(self);
-        let l = ui.child(&Hint::new().opt_wh(SzOpt::Wrap), &id, VertLayout::new, |ui| {
-            self.label.ui(ui)?;
-            Ok(())
-        })?;
+        let l = ui.child(
+            &Hint::new(),
+            &id,
+            |info| Layout::new(VertLayout::new(info)),
+            |ui| {
+                self.label.ui(ui)?;
+                Ok(())
+            },
+        )?;
 
         let col =
             if ui.hovered(&id, l) { ui.s.light_col.alpha(0.3) } else { ui.s.light_col.alpha(0.2) };
@@ -36,13 +40,13 @@ impl<L: Layout, F: FnOnce(&mut Ui<'_, L>)> Widget<L> for Button<L, F> {
             }
         }
 
-        let _scope = ui.push(ui.pctx().col(col));
+        let _scope = ui.push().col(col);
         ui.fill_rrt(l.r, 4.0);
 
         Ok(Resp { l })
     }
 
-    fn lcl_id(&self, ui: &Ui<'_, L>) -> String {
+    fn lcl_id(&self, ui: &Ui) -> String {
         combine_ids(&["button", &self.label.lcl_id(ui)])
     }
 }

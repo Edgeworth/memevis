@@ -1,4 +1,3 @@
-use crate::visual::gui::layouts::resize_layout::ResizeLayout;
 use crate::visual::gui::ui::Ui;
 use crate::visual::render::glium_renderer::GliumRenderer;
 use crate::visual::vis::Vis;
@@ -38,7 +37,7 @@ impl Ctx {
     pub fn run(
         mut self,
         ev: EventLoop<()>,
-        mut f: impl FnMut(&mut Ui<'_, ResizeLayout>) -> Result<()> + 'static,
+        mut f: impl FnMut(&mut Ui) -> Result<()> + 'static,
     ) -> Result<()> {
         ev.run(move |e, _, flow| self.event_loop(e, flow, &mut f).unwrap())
     }
@@ -47,23 +46,20 @@ impl Ctx {
         &mut self,
         e: Event<'_, ()>,
         flow: &mut ControlFlow,
-        f: &mut impl FnMut(&mut Ui<'_, ResizeLayout>) -> Result<()>,
+        f: &mut impl FnMut(&mut Ui) -> Result<()>,
     ) -> Result<()> {
         *flow = ControlFlow::Wait;
         match e {
             Event::NewEvents(_) => {}
-            Event::MainEventsCleared => {
-                self.disp.gl_window().window().request_redraw();
-            }
             Event::RedrawRequested(_) => {
-                let mut ui = self.vis.begin()?;
+                let mut ui = self.vis.begin();
                 f(&mut ui)?;
 
                 let mut t = self.disp.draw();
                 t.clear_color_and_depth((0.6, 0.6, 0.6, 1.0), 1.0);
                 self.vis.end();
 
-                self.rend.draw(&self.disp, &mut t, &mut self.vis.p).unwrap();
+                self.rend.draw(&self.disp, &mut t, &mut self.vis.paint()).unwrap();
                 t.finish()?;
             }
             Event::WindowEvent { event: WindowEvent::CloseRequested, .. } => {
@@ -71,7 +67,8 @@ impl Ctx {
                 *flow = ControlFlow::Exit
             }
             Event::WindowEvent { event, .. } => {
-                self.vis.io.process_event(self.disp.gl_window().window(), event)
+                self.vis.io().process_event(self.disp.gl_window().window(), event);
+                self.disp.gl_window().window().request_redraw();
             }
             _ => {}
         }

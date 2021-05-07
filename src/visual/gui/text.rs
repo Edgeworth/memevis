@@ -1,5 +1,5 @@
 use crate::visual::gui::layer::LclLayer;
-use crate::visual::gui::layouts::layout::{Grav, Layout};
+use crate::visual::gui::layouts::hint::Grav;
 use crate::visual::gui::ui::Ui;
 use crate::visual::types::{lpt, lz, LclPt, LclRt};
 use eyre::Result;
@@ -31,7 +31,7 @@ impl Frag {
         self
     }
 
-    pub fn layout(&self, ui: &mut Ui<'_, impl Layout>) -> Result<LclLayer> {
+    pub fn layout(&self, ui: &mut Ui) -> Result<LclLayer> {
         let sz = ui.text_sz(self)?;
         let xoff = match self.grav.0 {
             Grav::Begin => 0.0,
