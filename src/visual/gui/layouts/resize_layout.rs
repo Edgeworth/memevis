@@ -1,11 +1,12 @@
-use crate::visual::gui::layer::{LclLayer, PrtLayer};
-use crate::visual::gui::layouts::layout::{Hint, Layout, LayoutInfo};
-use crate::visual::gui::layouts::util::{compute_child_info, natural_layer_in_parent};
+use crate::visual::gui::layer::LclLayer;
+use crate::visual::gui::layouts::hint::Hint;
+use crate::visual::gui::layouts::layout::{LayoutInfo, LayoutStrategy};
+use crate::visual::gui::layouts::util::compute_child_info;
 use crate::visual::gui::ui::Ui;
 use crate::visual::types::{lrt, lz, LclPt, LclRt, LclSz, LclZ, ZOrder};
-use eyre::Result;
 use glium::glutin::window::CursorIcon;
 use num_traits::Zero;
+use parking_lot::{MappedMutexGuard, MutexGuard};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -73,17 +74,17 @@ impl ResizeLayout {
         w.l.inset(RESIZE_INSET)
     }
 
-    fn state<'a>(&self, ui: &'a mut Ui<'_, impl Layout>) -> &'a mut ResizeState {
+    fn state<'a>(&self, ui: &'a mut Ui) -> MappedMutexGuard<'a, ResizeState> {
         let id = ui.id().to_owned();
-        &mut ui.m().wid(&id).pos
+        MutexGuard::map(ui.mem(), |v| &mut v.wid(&id).pos)
     }
 
-    fn next_z(&self, ui: &mut Ui<'_, impl Layout>) -> LclZ {
+    fn next_z(&self, ui: &mut Ui) -> LclZ {
         self.state(ui).top_z += Z_OFF;
         self.state(ui).top_z
     }
 
-    fn handle_click(&self, ui: &mut Ui<'_, impl Layout>, w: &mut WindowState) {
+    fn handle_click(&self, ui: &mut Ui, w: &mut WindowState) {
         let ltf = self.info.gtf.inv();
         let mouse_st = ltf.pt(ui.io().mouse_pressed_pt);
         w.dir = resize_dir(&self.hitbox(w), mouse_st);
@@ -92,12 +93,7 @@ impl ResizeLayout {
         w.l.z = self.next_z(ui); // Move to front.
     }
 
-    fn interact(
-        &self,
-        ui: &mut Ui<'_, impl Layout>,
-        child_id: &str,
-        mut w: WindowState,
-    ) -> WindowState {
+    fn interact(&self, ui: &mut Ui, child_id: &str, mut w: WindowState) -> WindowState {
         let ltf = self.info.gtf.inv();
         let hitbox = self.hitbox(&w);
         if ui.pressed(child_id, hitbox) {
@@ -107,39 +103,30 @@ impl ResizeLayout {
             let mouse_dt = (ltf.pt(ui.io().mouse_pt) - w.mouse_st).as_sz();
             let ResizeInfo { delta_rt, cursor } = get_resize_info(mouse_dt, w.dir, true);
             w.l.r = w.rt_st + delta_rt;
-            ui.p().set_cursor(cursor);
+            ui.paint().set_cursor(cursor);
         } else if ui.hovered(child_id, hitbox) {
             let ResizeInfo { cursor, .. } = get_resize_info(
                 LclSz::zero(),
                 resize_dir(&hitbox, ltf.pt(ui.io().mouse_pt)),
                 false,
             );
-            ui.p().set_cursor(cursor);
+            ui.paint().set_cursor(cursor);
         }
         w
     }
 }
 
-impl Layout for ResizeLayout {
+impl LayoutStrategy for ResizeLayout {
     fn info(&self) -> &LayoutInfo {
         &self.info
     }
 
-    fn child<UiF, L, ChildL>(
-        &mut self,
-        ui: &mut Ui<'_, L>,
-        hint: &Hint,
-        child_id: &str,
-        mut f: UiF,
-    ) -> Result<LclLayer>
-    where
-        L: Layout,
-        ChildL: Layout,
-        UiF: FnMut(&mut Ui<'_, L>, LayoutInfo) -> Result<ChildL>,
-    {
+    fn child_info(&mut self, ui: &mut Ui, hint: &Hint, child_id: &str) -> LayoutInfo {
         let mut w = self.state(ui).wins.get(child_id).copied();
         let info = if let Some(ref mut w) = w {
             *w = self.interact(ui, child_id, *w);
+            self.state(ui).wins.insert(child_id.to_owned(), *w);
+
             compute_child_info(
                 self.info(),
                 w.l.r.tl(),
@@ -149,27 +136,15 @@ impl Layout for ResizeLayout {
         } else {
             compute_child_info(self.info(), self.loc, self.next_z(ui), hint)
         };
-        let mut layout = f(ui, info)?;
-        let l: LclLayer = layout.compute_layer().coerce();
+
+        info
+    }
+
+    fn place_layer(&mut self, ui: &mut Ui, l: &LclLayer, child_id: &str) {
+        // Update saved layer.
+        self.state(ui).wins.entry(child_id.to_owned()).or_insert_with(|| WindowState::new(*l)).l =
+            *l;
         self.loc.y = l.r.b();
-
-        self.state(ui).wins.insert(child_id.to_owned(), w.unwrap_or_else(|| WindowState::new(l)));
-        Ok(l)
-    }
-
-    fn child_layer<L: Layout>(&mut self, ui: &mut Ui<'_, L>, hint: &Hint) -> Result<LclLayer> {
-        let l = natural_layer_in_parent(&compute_child_info(
-            self.info(),
-            self.loc,
-            self.next_z(ui),
-            hint,
-        ));
-        self.loc.y += l.r.h;
-        Ok(l.coerce())
-    }
-
-    fn compute_layer(&mut self) -> PrtLayer {
-        natural_layer_in_parent(self.info())
     }
 }
 

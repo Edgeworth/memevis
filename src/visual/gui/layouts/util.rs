@@ -1,5 +1,6 @@
 use crate::visual::gui::layer::{LclLayer, PrtLayer, PrtTf};
-use crate::visual::gui::layouts::layout::{Hint, LayoutInfo, SzOpt};
+use crate::visual::gui::layouts::hint::{Hint, SzOpt};
+use crate::visual::gui::layouts::layout::LayoutInfo;
 use crate::visual::types::{lsz, LclPt, LclRt, LclSz, LclZ};
 use num_traits::Zero;
 
