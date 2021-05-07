@@ -6,7 +6,6 @@ use crate::visual::gui::ui::Ui;
 use crate::visual::types::{lrt, lz, LclPt, LclRt, LclSz, LclZ, ZOrder};
 use glium::glutin::window::CursorIcon;
 use num_traits::Zero;
-use parking_lot::{MappedMutexGuard, MutexGuard};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -74,17 +73,17 @@ impl ResizeLayout {
         w.l.inset(RESIZE_INSET)
     }
 
-    fn state<'a>(&self, ui: &'a mut Ui) -> MappedMutexGuard<'a, ResizeState> {
+    fn state<'a>(&self, ui: &'a mut Ui<'_>) -> &'a mut ResizeState {
         let id = ui.id().to_owned();
-        MutexGuard::map(ui.mem(), |v| &mut v.wid(&id).pos)
+        &mut ui.mem_mut().wid(&id).pos
     }
 
-    fn next_z(&self, ui: &mut Ui) -> LclZ {
+    fn next_z(&self, ui: &mut Ui<'_>) -> LclZ {
         self.state(ui).top_z += Z_OFF;
         self.state(ui).top_z
     }
 
-    fn handle_click(&self, ui: &mut Ui, w: &mut WindowState) {
+    fn handle_click(&self, ui: &mut Ui<'_>, w: &mut WindowState) {
         let ltf = self.info.gtf.inv();
         let mouse_st = ltf.pt(ui.io().mouse_pressed_pt);
         w.dir = resize_dir(&self.hitbox(w), mouse_st);
@@ -93,7 +92,7 @@ impl ResizeLayout {
         w.l.z = self.next_z(ui); // Move to front.
     }
 
-    fn interact(&self, ui: &mut Ui, child_id: &str, mut w: WindowState) -> WindowState {
+    fn interact(&self, ui: &mut Ui<'_>, child_id: &str, mut w: WindowState) -> WindowState {
         let ltf = self.info.gtf.inv();
         let hitbox = self.hitbox(&w);
         if ui.pressed(child_id, hitbox) {
@@ -103,14 +102,14 @@ impl ResizeLayout {
             let mouse_dt = (ltf.pt(ui.io().mouse_pt) - w.mouse_st).as_sz();
             let ResizeInfo { delta_rt, cursor } = get_resize_info(mouse_dt, w.dir, true);
             w.l.r = w.rt_st + delta_rt;
-            ui.paint().set_cursor(cursor);
+            ui.paint_mut().set_cursor(cursor);
         } else if ui.hovered(child_id, hitbox) {
             let ResizeInfo { cursor, .. } = get_resize_info(
                 LclSz::zero(),
                 resize_dir(&hitbox, ltf.pt(ui.io().mouse_pt)),
                 false,
             );
-            ui.paint().set_cursor(cursor);
+            ui.paint_mut().set_cursor(cursor);
         }
         w
     }
@@ -121,7 +120,7 @@ impl LayoutStrategy for ResizeLayout {
         &self.info
     }
 
-    fn child_info(&mut self, ui: &mut Ui, hint: &Hint, child_id: &str) -> LayoutInfo {
+    fn child_info(&mut self, ui: &mut Ui<'_>, hint: &Hint, child_id: &str) -> LayoutInfo {
         let mut w = self.state(ui).wins.get(child_id).copied();
         let info = if let Some(ref mut w) = w {
             *w = self.interact(ui, child_id, *w);
@@ -140,7 +139,7 @@ impl LayoutStrategy for ResizeLayout {
         info
     }
 
-    fn place_layer(&mut self, ui: &mut Ui, l: &LclLayer, child_id: &str) {
+    fn place_layer(&mut self, ui: &mut Ui<'_>, l: &LclLayer, child_id: &str) {
         // Update saved layer.
         self.state(ui).wins.entry(child_id.to_owned()).or_insert_with(|| WindowState::new(*l)).l =
             *l;

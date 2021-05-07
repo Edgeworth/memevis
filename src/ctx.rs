@@ -37,7 +37,7 @@ impl Ctx {
     pub fn run(
         mut self,
         ev: EventLoop<()>,
-        mut f: impl FnMut(&mut Ui) -> Result<()> + 'static,
+        mut f: impl FnMut(&mut Ui<'_>) -> Result<()> + 'static,
     ) -> Result<()> {
         ev.run(move |e, _, flow| self.event_loop(e, flow, &mut f).unwrap())
     }
@@ -46,7 +46,7 @@ impl Ctx {
         &mut self,
         e: Event<'_, ()>,
         flow: &mut ControlFlow,
-        f: &mut impl FnMut(&mut Ui) -> Result<()>,
+        f: &mut impl FnMut(&mut Ui<'_>) -> Result<()>,
     ) -> Result<()> {
         *flow = ControlFlow::Wait;
         match e {
@@ -59,7 +59,7 @@ impl Ctx {
                 t.clear_color_and_depth((0.6, 0.6, 0.6, 1.0), 1.0);
                 self.vis.end();
 
-                self.rend.draw(&self.disp, &mut t, &mut self.vis.paint()).unwrap();
+                self.rend.draw(&self.disp, &mut t, self.vis.paint_mut()).unwrap();
                 t.finish()?;
             }
             Event::WindowEvent { event: WindowEvent::CloseRequested, .. } => {
@@ -67,7 +67,7 @@ impl Ctx {
                 *flow = ControlFlow::Exit
             }
             Event::WindowEvent { event, .. } => {
-                self.vis.io().process_event(self.disp.gl_window().window(), event);
+                self.vis.io_mut().process_event(self.disp.gl_window().window(), event);
                 self.disp.gl_window().window().request_redraw();
             }
             _ => {}

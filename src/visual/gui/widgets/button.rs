@@ -7,19 +7,19 @@ use crate::visual::gui::widgets::widget::{combine_ids, Resp, Widget};
 use eyre::Result;
 
 #[derive(Debug)]
-pub struct Button<F: FnOnce(&mut Ui)> {
+pub struct Button<F: FnOnce(&mut Ui<'_>)> {
     label: Label,
     cb: Option<F>,
 }
 
-impl<F: FnOnce(&mut Ui)> Button<F> {
+impl<F: FnOnce(&mut Ui<'_>)> Button<F> {
     pub fn new(text: &str, cb: F) -> Self {
         Self { label: Label::new(text), cb: Some(cb) }
     }
 }
 
-impl<F: FnOnce(&mut Ui)> Widget for Button<F> {
-    fn ui(&mut self, ui: &mut Ui) -> Result<Resp> {
+impl<F: FnOnce(&mut Ui<'_>)> Widget for Button<F> {
+    fn ui(&mut self, ui: &mut Ui<'_>) -> Result<Resp> {
         let id = ui.wid(self);
         let l = ui.child(
             &Hint::new(),
@@ -46,7 +46,7 @@ impl<F: FnOnce(&mut Ui)> Widget for Button<F> {
         Ok(Resp { l })
     }
 
-    fn lcl_id(&self, ui: &Ui) -> String {
+    fn lcl_id(&self, ui: &Ui<'_>) -> String {
         combine_ids(&["button", &self.label.lcl_id(ui)])
     }
 }

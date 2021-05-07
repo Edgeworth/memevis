@@ -8,19 +8,19 @@ use eyre::Result;
 use num_traits::Zero;
 
 #[derive(Debug, Clone)]
-pub struct Window<F: FnMut(&mut Ui) -> Result<()>> {
+pub struct Window<F: FnMut(&mut Ui<'_>) -> Result<()>> {
     title: String,
     f: F,
 }
 
-impl<F: FnMut(&mut Ui) -> Result<()>> Window<F> {
+impl<F: FnMut(&mut Ui<'_>) -> Result<()>> Window<F> {
     pub fn new(title: &str, f: F) -> Self {
         Self { title: title.to_owned(), f }
     }
 }
 
-impl<F: FnMut(&mut Ui) -> Result<()>> Widget for Window<F> {
-    fn ui(&mut self, ui: &mut Ui) -> Result<Resp> {
+impl<F: FnMut(&mut Ui<'_>) -> Result<()>> Widget for Window<F> {
+    fn ui(&mut self, ui: &mut Ui<'_>) -> Result<Resp> {
         let id = ui.wid(self);
         let mut title_r = LclRt::zero();
         let l = ui.child(
@@ -45,7 +45,7 @@ impl<F: FnMut(&mut Ui) -> Result<()>> Widget for Window<F> {
         Ok(Resp { l })
     }
 
-    fn lcl_id(&self, _: &Ui) -> String {
+    fn lcl_id(&self, _: &Ui<'_>) -> String {
         self.title.clone()
     }
 }

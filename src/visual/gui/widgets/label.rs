@@ -18,7 +18,7 @@ impl Label {
 }
 
 impl Widget for Label {
-    fn ui(&mut self, ui: &mut Ui) -> Result<Resp> {
+    fn ui(&mut self, ui: &mut Ui<'_>) -> Result<Resp> {
         let f = Frag::new(&self.text, ui.s.font_sz, LclPt::zero());
         let sz = ui.text_sz(&f)?;
         let l = ui.child_layer(&Hint::make_exact(sz));
@@ -26,7 +26,7 @@ impl Widget for Label {
         Ok(Resp { l })
     }
 
-    fn lcl_id(&self, _ui: &Ui) -> String {
+    fn lcl_id(&self, _ui: &Ui<'_>) -> String {
         self.text.clone()
     }
 }

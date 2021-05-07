@@ -16,7 +16,6 @@ log = "*"
 lyon = "*"
 num = "*"
 num-traits = "*"
-parking_lot = "*"
 paste = "*"
 rgb = "*"
 serde = {version = "*", features = ["derive"]}
