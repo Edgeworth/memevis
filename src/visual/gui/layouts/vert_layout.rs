@@ -1,9 +1,9 @@
-use crate::visual::gui::layer::{LclLayer, PrtLayer};
-use crate::visual::gui::layouts::layout::{Hint, Layout, LayoutInfo};
-use crate::visual::gui::layouts::util::{compute_child_info, natural_layer_in_parent};
+use crate::visual::gui::layer::LclLayer;
+use crate::visual::gui::layouts::hint::Hint;
+use crate::visual::gui::layouts::layout::{LayoutInfo, LayoutStrategy};
+use crate::visual::gui::layouts::util::compute_child_info;
 use crate::visual::gui::ui::Ui;
 use crate::visual::types::{lz, LclPt, LclSz};
-use eyre::Result;
 use num_traits::Zero;
 
 #[derive(Debug, Copy, Clone)]
@@ -27,38 +27,16 @@ impl VertLayout {
     }
 }
 
-impl Layout for VertLayout {
+impl LayoutStrategy for VertLayout {
     fn info(&self) -> &LayoutInfo {
         &self.info
     }
 
-    fn child<UiF, L, ChildL>(
-        &mut self,
-        ui: &mut Ui<'_, L>,
-        hint: &Hint,
-        _child_id: &str,
-        mut f: UiF,
-    ) -> Result<LclLayer>
-    where
-        L: Layout,
-        ChildL: Layout,
-        UiF: FnMut(&mut Ui<'_, L>, LayoutInfo) -> Result<ChildL>,
-    {
-        let info = compute_child_info(&self.info, self.loc.coerce(), lz(1), hint);
-        let mut layout = f(ui, info)?;
-        let layer: LclLayer = layout.compute_layer().coerce(); // Parent is local here.
-        self.advance_cursor(&layer);
-        Ok(layer)
+    fn child_info(&mut self, _ui: &mut Ui, hint: &Hint, _child_id: &str) -> LayoutInfo {
+        compute_child_info(&self.info, self.loc.coerce(), lz(1), hint)
     }
 
-    fn child_layer<L: Layout>(&mut self, _: &mut Ui<'_, L>, hint: &Hint) -> Result<LclLayer> {
-        let info = compute_child_info(self.info(), self.loc, lz(1), hint);
-        let l = natural_layer_in_parent(&info).coerce();
+    fn place_layer(&mut self, _ui: &mut Ui, l: &LclLayer, _: &str) {
         self.advance_cursor(&l);
-        Ok(l)
-    }
-
-    fn compute_layer(&mut self) -> PrtLayer {
-        natural_layer_in_parent(self.info())
     }
 }

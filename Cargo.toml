@@ -6,6 +6,7 @@ version = "0.1.0"
 
 [dependencies]
 derive_more = "*"
+dyn-clone = "*"
 eyre = "*"
 freetype-rs = "*"
 glium = "*"
@@ -15,6 +16,7 @@ log = "*"
 lyon = "*"
 num = "*"
 num-traits = "*"
+parking_lot = "*"
 paste = "*"
 rgb = "*"
 serde = {version = "*", features = ["derive"]}
