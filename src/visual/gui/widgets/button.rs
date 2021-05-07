@@ -40,7 +40,8 @@ impl<F: FnOnce(&mut Ui<'_>)> Widget for Button<F> {
             }
         }
 
-        let _scope = ui.push().col(col);
+        let scope = ui.push();
+        scope.col(col);
         ui.fill_rrt(l.r, 4.0);
 
         Ok(Resp { l })
