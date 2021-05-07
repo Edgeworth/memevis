@@ -93,7 +93,8 @@ impl<'a> Ui<'a> {
             Ok(ui.l)
         })?;
         if self.mem().debug {
-            let _scope = self.push().z(MAX_Z).col(GREEN);
+            let scope = self.push();
+            scope.z(MAX_Z).col(GREEN);
             self.stroke_rt(layer.r);
         }
         self.l = layout;
@@ -106,7 +107,8 @@ impl<'a> Ui<'a> {
         let mut layout = self.l.clone();
         let layer = layout.child_layer(self, hint);
         if self.mem().debug {
-            let _scope = self.push().z(MAX_Z).col(RED);
+            let scope = self.push();
+            scope.z(MAX_Z).col(RED);
             self.stroke_rt(layer.r);
         }
         self.l = layout;
