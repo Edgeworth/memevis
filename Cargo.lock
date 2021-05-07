@@ -855,7 +855,6 @@ dependencies = [
  "lyon",
  "num",
  "num-traits",
- "parking_lot",
  "paste",
  "rgb",
  "serde",

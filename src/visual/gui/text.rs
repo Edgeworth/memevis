@@ -31,7 +31,7 @@ impl Frag {
         self
     }
 
-    pub fn layout(&self, ui: &mut Ui) -> Result<LclLayer> {
+    pub fn layout(&self, ui: &mut Ui<'_>) -> Result<LclLayer> {
         let sz = ui.text_sz(self)?;
         let xoff = match self.grav.0 {
             Grav::Begin => 0.0,

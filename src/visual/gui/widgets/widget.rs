@@ -7,8 +7,8 @@ pub struct Resp {
 }
 
 pub trait Widget {
-    fn ui(&mut self, ui: &mut Ui) -> Result<Resp>;
-    fn lcl_id(&self, ui: &Ui) -> String;
+    fn ui(&mut self, ui: &mut Ui<'_>) -> Result<Resp>;
+    fn lcl_id(&self, ui: &Ui<'_>) -> String;
 }
 
 pub fn combine_ids(ids: &[&str]) -> String {

@@ -32,11 +32,11 @@ impl LayoutStrategy for VertLayout {
         &self.info
     }
 
-    fn child_info(&mut self, _ui: &mut Ui, hint: &Hint, _child_id: &str) -> LayoutInfo {
+    fn child_info(&mut self, _ui: &mut Ui<'_>, hint: &Hint, _child_id: &str) -> LayoutInfo {
         compute_child_info(&self.info, self.loc.coerce(), lz(1), hint)
     }
 
-    fn place_layer(&mut self, _ui: &mut Ui, l: &LclLayer, _: &str) {
+    fn place_layer(&mut self, _ui: &mut Ui<'_>, l: &LclLayer, _: &str) {
         self.advance_cursor(&l);
     }
 }
