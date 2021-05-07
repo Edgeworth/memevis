@@ -17,35 +17,46 @@ use eyre::Result;
 use lyon::math::Angle;
 use lyon::path::Path;
 use num_traits::Zero;
-use parking_lot::MutexGuard;
 use std::cell::Cell;
 use std::sync::Arc;
 
-pub struct Ui {
+pub struct Ui<'a> {
     pub s: Style,
-    v: Vis,
+    v: &'a mut Vis,
     l: Layout,
     id: String,
     pctx: Arc<Cell<PaintCtx>>,
 }
 
-impl Ui {
-    pub fn new(v: Vis, l: Layout, id: &str) -> Self {
+impl<'a> Ui<'a> {
+    pub fn new(v: &'a mut Vis, l: Layout, id: &str) -> Self {
         let s = Style::new();
         let pctx = PaintCtx { tf: l.info().gtf, col: s.light_col, ..Default::default() };
         Self { s, v, l, id: id.to_owned(), pctx: Arc::new(Cell::new(pctx)) }
     }
 
-    pub fn mem(&self) -> MutexGuard<'_, Memory> {
+    pub fn mem(&self) -> &Memory {
         self.v.mem()
     }
 
-    pub fn io(&self) -> MutexGuard<'_, Io> {
+    pub fn mem_mut(&mut self) -> &mut Memory {
+        self.v.mem_mut()
+    }
+
+    pub fn io(&self) -> &Io {
         self.v.io()
     }
 
-    pub fn paint(&self) -> MutexGuard<'_, Painter> {
+    pub fn io_mut(&mut self) -> &mut Io {
+        self.v.io_mut()
+    }
+
+    pub fn paint(&self) -> &Painter {
         self.v.paint()
+    }
+
+    pub fn paint_mut(&mut self) -> &mut Painter {
+        self.v.paint_mut()
     }
 
     pub fn pctx(&self) -> PaintCtx {
@@ -61,7 +72,7 @@ impl Ui {
 
 // Layout
 #[allow(dead_code)]
-impl Ui {
+impl<'a> Ui<'a> {
     pub fn child<LayoutF, UiF>(
         &mut self,
         hint: &Hint,
@@ -71,13 +82,13 @@ impl Ui {
     ) -> Result<LclLayer>
     where
         LayoutF: FnMut(LayoutInfo) -> Layout,
-        UiF: FnMut(&mut Ui) -> Result<()>,
+        UiF: FnMut(&mut Ui<'_>) -> Result<()>,
     {
         // Copy - layouts see a frozen version of themselves from
         // accessing via Ui.
         let mut layout = self.l.clone();
         let layer = layout.child(self, hint, child_id, |ui, params| {
-            let mut ui = Ui::new(ui.v.clone(), layout_f(params), child_id);
+            let mut ui = Ui::new(ui.v, layout_f(params), child_id);
             ui_f(&mut ui)?;
             Ok(ui.l)
         })?;
@@ -118,9 +129,9 @@ impl Ui {
         combine_ids(&[&self.id(), &w.lcl_id(self)])
     }
 
-    pub fn hovered(&self, id: &str, l: LclLayer) -> bool {
+    pub fn hovered(&mut self, id: &str, l: LclLayer) -> bool {
         let l = self.l.info().gtf.layer(l);
-        let mut io = self.v.io();
+        let io = self.v.io_mut();
         let contained = l.contains(io.mouse_pt);
         if contained {
             io.mouse_req(l.z, id);
@@ -128,13 +139,13 @@ impl Ui {
         io.has_mouse.as_deref() == Some(id) && contained
     }
 
-    pub fn scrolled(&self, id: &str, l: LclLayer) -> Pt {
+    pub fn scrolled(&mut self, id: &str, l: LclLayer) -> Pt {
         if self.hovered(id, l) { self.io().mouse_scroll } else { Pt::zero() }
     }
 
-    pub fn pressed(&self, id: &str, l: LclLayer) -> bool {
+    pub fn pressed(&mut self, id: &str, l: LclLayer) -> bool {
         let l = self.l.info().gtf.layer(l);
-        let mut io = self.v.io();
+        let io = self.v.io_mut();
         let capture = io.is_mouse_pressed
             && (io.mouse_captured.as_deref() == Some(id) || l.contains(io.mouse_pt));
         if capture {
@@ -154,23 +165,27 @@ impl Ui {
 }
 
 // Widgets.
-impl Ui {
+impl<'a> Ui<'a> {
     pub fn label(&mut self, text: &str) -> Result<Resp> {
         Label::new(text).ui(self)
     }
 
-    pub fn button<F: FnOnce(&mut Ui)>(&mut self, text: &str, cb: F) -> Result<Resp> {
+    pub fn button<F: FnOnce(&mut Ui<'_>)>(&mut self, text: &str, cb: F) -> Result<Resp> {
         Button::new(text, cb).ui(self)
     }
 
-    pub fn window(&mut self, title: &str, f: impl FnMut(&mut Ui) -> Result<()>) -> Result<Resp> {
+    pub fn window(
+        &mut self,
+        title: &str,
+        f: impl FnMut(&mut Ui<'_>) -> Result<()>,
+    ) -> Result<Resp> {
         Window::new(title, f).ui(self)
     }
 }
 
 // Drawing.
 #[allow(dead_code)]
-impl Ui {
+impl<'a> Ui<'a> {
     pub fn text_sz(&mut self, f: &Frag) -> Result<LclSz> {
         let sz = self.v.layout_text(&f.text, f.sz)?;
         Ok(self.l.info().gtf.inv().sz(sz))
@@ -182,67 +197,67 @@ impl Ui {
         self.v.draw_text(&f.text, f.sz, &l)
     }
 
-    pub fn fill_path(&self, p: Path) {
-        self.v.paint().fill_path(self.pctx.get(), p);
+    pub fn fill_path(&mut self, p: Path) {
+        self.v.paint_mut().fill_path(self.pctx.get(), p);
     }
 
-    pub fn fill_circ(&self, p: LclPt, radius: f64) {
-        self.v.paint().fill_circ(self.pctx.get(), p, radius);
+    pub fn fill_circ(&mut self, p: LclPt, radius: f64) {
+        self.v.paint_mut().fill_circ(self.pctx.get(), p, radius);
     }
 
-    pub fn fill_poly(&self, pts: Vec<LclPt>) {
-        self.v.paint().fill_poly(self.pctx.get(), pts);
+    pub fn fill_poly(&mut self, pts: Vec<LclPt>) {
+        self.v.paint_mut().fill_poly(self.pctx.get(), pts);
     }
 
-    pub fn fill_quad(&self, v: [LclPt; 4]) {
-        self.v.paint().fill_quad(self.pctx.get(), v);
+    pub fn fill_quad(&mut self, v: [LclPt; 4]) {
+        self.v.paint_mut().fill_quad(self.pctx.get(), v);
     }
 
-    pub fn fill_rt(&self, r: LclRt) {
-        self.v.paint().fill_rt(self.pctx.get(), r);
+    pub fn fill_rt(&mut self, r: LclRt) {
+        self.v.paint_mut().fill_rt(self.pctx.get(), r);
     }
 
-    pub fn fill_rrt(&self, r: LclRt, radius: f64) {
-        self.v.paint().fill_rrt(self.pctx.get(), r, radius);
+    pub fn fill_rrt(&mut self, r: LclRt, radius: f64) {
+        self.v.paint_mut().fill_rrt(self.pctx.get(), r, radius);
     }
 
-    pub fn stroke_line(&self, st: LclPt, en: LclPt) {
-        self.v.paint().stroke_line(self.pctx.get(), st, en);
+    pub fn stroke_line(&mut self, st: LclPt, en: LclPt) {
+        self.v.paint_mut().stroke_line(self.pctx.get(), st, en);
     }
 
-    pub fn stroke_path(&self, p: Path) {
-        self.v.paint().stroke_path(self.pctx.get(), p);
+    pub fn stroke_path(&mut self, p: Path) {
+        self.v.paint_mut().stroke_path(self.pctx.get(), p);
     }
 
-    pub fn stroke_circ(&self, p: LclPt, radius: f64) {
-        self.v.paint().stroke_circ(self.pctx.get(), p, radius);
+    pub fn stroke_circ(&mut self, p: LclPt, radius: f64) {
+        self.v.paint_mut().stroke_circ(self.pctx.get(), p, radius);
     }
 
-    pub fn stroke_ellipse(&self, p: LclPt, radii: LclSz, rot: Angle) {
-        self.v.paint().stroke_ellipse(self.pctx.get(), p, radii, rot);
+    pub fn stroke_ellipse(&mut self, p: LclPt, radii: LclSz, rot: Angle) {
+        self.v.paint_mut().stroke_ellipse(self.pctx.get(), p, radii, rot);
     }
 
-    pub fn stroke_poly(&self, pts: Vec<LclPt>) {
-        self.v.paint().stroke_poly(self.pctx.get(), pts);
+    pub fn stroke_poly(&mut self, pts: Vec<LclPt>) {
+        self.v.paint_mut().stroke_poly(self.pctx.get(), pts);
     }
 
-    pub fn stroke_quad(&self, v: [LclPt; 4]) {
-        self.v.paint().stroke_quad(self.pctx.get(), v);
+    pub fn stroke_quad(&mut self, v: [LclPt; 4]) {
+        self.v.paint_mut().stroke_quad(self.pctx.get(), v);
     }
 
-    pub fn stroke_rt(&self, r: LclRt) {
-        self.v.paint().stroke_rt(self.pctx.get(), r);
+    pub fn stroke_rt(&mut self, r: LclRt) {
+        self.v.paint_mut().stroke_rt(self.pctx.get(), r);
     }
 
-    pub fn stroke_rrt(&self, r: LclRt, radius: f64) {
-        self.v.paint().stroke_rrt(self.pctx.get(), r, radius);
+    pub fn stroke_rrt(&mut self, r: LclRt, radius: f64) {
+        self.v.paint_mut().stroke_rrt(self.pctx.get(), r, radius);
     }
 
-    pub fn stroke_tri(&self, v: [LclPt; 3]) {
-        self.v.paint().stroke_tri(self.pctx.get(), v);
+    pub fn stroke_tri(&mut self, v: [LclPt; 3]) {
+        self.v.paint_mut().stroke_tri(self.pctx.get(), v);
     }
 
-    pub fn tex(&self, tex: TextureLayer) {
-        self.v.paint().tex(self.pctx.get(), tex);
+    pub fn tex(&mut self, tex: TextureLayer) {
+        self.v.paint_mut().tex(self.pctx.get(), tex);
     }
 }

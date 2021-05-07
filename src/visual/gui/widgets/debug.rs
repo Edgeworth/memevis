@@ -3,8 +3,8 @@ use crate::visual::types::ZOrder;
 use eyre::Result;
 use num_traits::Zero;
 
-pub fn debug_pane(ui: &mut Ui) -> Result<()> {
-    ui.button("[debug] show layout", |ui| ui.mem().debug = !ui.mem().debug)?;
+pub fn debug_pane(ui: &mut Ui<'_>) -> Result<()> {
+    ui.button("[debug] show layout", |ui| ui.mem_mut().debug = !ui.mem().debug)?;
     let ft = ui.io().prev_end_frame_time - ui.io().prev_begin_frame_time;
     let rt = (ui.io().begin_frame_time - ui.io().prev_begin_frame_time).as_secs_f32();
     ui.label(&format!("[debug] frame ms: {:.2}", ft.as_secs_f32() * 1000.0))?;

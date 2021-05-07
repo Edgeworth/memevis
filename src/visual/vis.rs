@@ -8,13 +8,11 @@ use crate::visual::render::font::Font;
 use crate::visual::render::painter::Painter;
 use crate::visual::types::{GblSz, LclSz};
 use eyre::{eyre, Result};
-use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
 use serde::{Deserialize, Serialize};
 use std::any::Any;
 use std::collections::HashMap;
 use std::fs::File;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
 
 pub type FontId = u32;
 
@@ -78,71 +76,79 @@ impl Memory {
     }
 }
 
-#[derive(Clone)]
 pub struct Vis {
-    p: Arc<Mutex<Painter>>,
-    io: Arc<Mutex<Io>>,
-    mem: Arc<Mutex<Memory>>,
-    f: Arc<Mutex<HashMap<FontId, Font>>>,
+    p: Painter,
+    io: Io,
+    mem: Memory,
+    f: HashMap<FontId, Font>,
 }
 
 impl Vis {
     pub fn new(dp_to_px: f64, scr_sz: GblSz) -> Result<Self> {
         const VIS_PATH: &str = "vis.json";
-        let f = Arc::new(Mutex::new(HashMap::new()));
-        f.lock().insert(0, Font::new()?);
-        let io = Arc::new(Mutex::new(Io::new(dp_to_px, scr_sz)));
-        let mem = Arc::new(Mutex::new(Memory::from_path(VIS_PATH)));
-        let p = Arc::new(Mutex::new(Painter::new()));
+        let mut f = HashMap::new();
+        f.insert(0, Font::new()?);
+        let io = Io::new(dp_to_px, scr_sz);
+        let mem = Memory::from_path(VIS_PATH);
+        let p = Painter::new();
         Ok(Self { p, io, mem, f })
     }
 
-    pub fn paint(&self) -> MutexGuard<'_, Painter> {
-        self.p.try_lock().expect("BUG")
+    pub fn paint(&self) -> &Painter {
+        &self.p
     }
 
-    pub fn io(&self) -> MutexGuard<'_, Io> {
-        self.io.try_lock().expect("BUG")
+    pub fn paint_mut(&mut self) -> &mut Painter {
+        &mut self.p
     }
 
-    pub fn mem(&self) -> MutexGuard<'_, Memory> {
-        self.mem.try_lock().expect("BUG")
+    pub fn io(&self) -> &Io {
+        &self.io
     }
 
-    pub fn begin(&self) -> Ui {
-        self.paint().begin();
-        self.io().begin();
+    pub fn io_mut(&mut self) -> &mut Io {
+        &mut self.io
+    }
+
+    pub fn mem(&self) -> &Memory {
+        &self.mem
+    }
+
+    pub fn mem_mut(&mut self) -> &mut Memory {
+        &mut self.mem
+    }
+
+    pub fn begin(&mut self) -> Ui<'_> {
+        self.paint_mut().begin();
+        self.io_mut().begin();
         let scr_sz: LclSz = self.io().scr_sz.coerce();
         Ui::new(
-            self.clone(),
+            self,
             Layout::new(ResizeLayout::new(LayoutInfo::zero().hint(Hint::make_exact(scr_sz)))),
             "top",
         )
     }
 
-    pub fn end(&self) {
-        self.io().end();
+    pub fn end(&mut self) {
+        self.io_mut().end();
     }
 
     pub fn exit(&self) -> Result<()> {
         self.mem().exit()
     }
 
-    pub fn font(&self, id: FontId) -> MappedMutexGuard<'_, Font> {
-        MutexGuard::map(self.f.try_lock().expect("BUG"), |v| v.get_mut(&id).unwrap())
+    pub fn font(&mut self, id: FontId) -> &mut Font {
+        self.f.get_mut(&id).unwrap()
     }
 
-    pub fn layout_text(&self, text: &str, dp: f64) -> Result<GblSz> {
-        let dp_to_px = self.io().dp_to_px;
-        let mut f = self.font(0);
-        f.layout(dp_to_px, text, dp)
+    pub fn layout_text(&mut self, text: &str, dp: f64) -> Result<GblSz> {
+        let f = self.f.get_mut(&0).unwrap();
+        f.layout(self.io.dp_to_px, text, dp)
     }
 
-    pub fn draw_text(&self, text: &str, dp: f64, l: &GblLayer) -> Result<()> {
-        let dp_to_px = self.io().dp_to_px;
-        let mut paint = self.paint();
-        let mut f = self.font(0);
-        f.draw(&mut paint, dp_to_px, text, dp, l)
+    pub fn draw_text(&mut self, text: &str, dp: f64, l: &GblLayer) -> Result<()> {
+        let f = self.f.get_mut(&0).unwrap();
+        f.draw(&mut self.p, self.io.dp_to_px, text, dp, l)
     }
 }
 

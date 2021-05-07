@@ -33,9 +33,9 @@ pub trait LayoutStrategy: DynClone {
     fn info(&self) -> &LayoutInfo;
 
     // Compute the layout info for placing a child.
-    fn child_info(&mut self, ui: &mut Ui, hint: &Hint, child_id: &str) -> LayoutInfo;
+    fn child_info(&mut self, ui: &mut Ui<'_>, hint: &Hint, child_id: &str) -> LayoutInfo;
 
-    fn place_layer(&mut self, ui: &mut Ui, l: &LclLayer, child_id: &str);
+    fn place_layer(&mut self, ui: &mut Ui<'_>, l: &LclLayer, child_id: &str);
 }
 
 dyn_clone::clone_trait_object!(LayoutStrategy);
@@ -56,10 +56,10 @@ impl Layout {
 
     pub fn child(
         &mut self,
-        ui: &mut Ui,
+        ui: &mut Ui<'_>,
         hint: &Hint,
         child_id: &str,
-        mut f: impl FnMut(&mut Ui, LayoutInfo) -> Result<Layout>,
+        mut f: impl FnMut(&mut Ui<'_>, LayoutInfo) -> Result<Layout>,
     ) -> Result<LclLayer> {
         let info = self.strat.child_info(ui, hint, child_id);
         let mut layout = f(ui, info)?;
@@ -68,7 +68,7 @@ impl Layout {
         Ok(l)
     }
 
-    pub fn child_layer(&mut self, ui: &mut Ui, hint: &Hint) -> LclLayer {
+    pub fn child_layer(&mut self, ui: &mut Ui<'_>, hint: &Hint) -> LclLayer {
         // Just pass nothing for the child id since we won't use it. Some
         // strategies might not support this though.
         let info = self.strat.child_info(ui, hint, "");
