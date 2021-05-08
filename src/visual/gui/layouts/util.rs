@@ -1,8 +1,9 @@
+use num_traits::Zero;
+
 use crate::visual::gui::layer::{LclLayer, PrtLayer, PrtTf};
 use crate::visual::gui::layouts::hint::{Hint, SzOpt};
 use crate::visual::gui::layouts::layout::LayoutInfo;
 use crate::visual::types::{lsz, LclPt, LclRt, LclSz, LclZ};
-use num_traits::Zero;
 
 fn clamp(mut sz: LclSz, min: Option<LclSz>, max: Option<LclSz>) -> LclSz {
     if let Some(min) = min {
@@ -57,14 +58,14 @@ pub(super) fn compute_child_info(
 
     let h = info.hint;
     // Get maximum rect inside parent and map it to child coord space.
-    let max = h.max.map(|v| LclRt::ptsz(offset, v - offset.as_sz()));
+    let max = h.max.map(|v| LclRt::ptsz(offset, v - offset.to_sz()));
     let max = max.map(|v| ptf.inv().rt(v.coerce()).sz());
 
     // Choose smallest out of child max and max from parent.
     let max = child.max.iter().chain(max.iter()).copied().reduce(LclSz::min);
 
     // Compute requested size
-    let parent_req = h.req.map(|v| ptf.inv().sz((v - offset.as_sz()).coerce()));
+    let parent_req = h.req.map(|v| ptf.inv().sz((v - offset.to_sz()).coerce()));
     let req = select_sz_2d(child.min, max, parent_req, child.req, child.opt);
     LayoutInfo {
         ptf,
@@ -87,9 +88,8 @@ pub(super) fn natural_layer_in_parent(info: &LayoutInfo) -> PrtLayer {
 
 #[cfg(test)]
 mod tests {
-    use crate::visual::types::{lpt, lz};
-
     use super::*;
+    use crate::visual::types::{lpt, lz};
 
     const OPTS: [SzOpt; 3] = [SzOpt::Wrap, SzOpt::Fill, SzOpt::Exact];
 

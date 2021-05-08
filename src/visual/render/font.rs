@@ -1,14 +1,16 @@
+use std::collections::HashMap;
+
+use eyre::{eyre, Result};
+use harfbuzz_rs::ClusterLevel::MonotoneCharacters;
+use harfbuzz_rs::GlyphInfo;
+use rgb::RGBA8;
+use {freetype as ft, harfbuzz_rs as hb};
+
 use crate::any::Any;
 use crate::visual::gui::layer::GblLayer;
 use crate::visual::render::atlas::AtlasHandle;
 use crate::visual::render::painter::{PaintCtx, Painter};
 use crate::visual::types::{grt, gsz, tpt, GblRt, GblSz, Rt2D};
-use eyre::{eyre, Result};
-use harfbuzz_rs::ClusterLevel::MonotoneCharacters;
-use harfbuzz_rs::GlyphInfo;
-use rgb::RGBA8;
-use std::collections::HashMap;
-use {freetype as ft, harfbuzz_rs as hb};
 
 static FONT_DATA: &[u8] = include_bytes!("../../assets/OpenSans-Regular.ttf");
 

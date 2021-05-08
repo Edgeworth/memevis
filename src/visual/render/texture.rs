@@ -1,8 +1,10 @@
-use crate::visual::types::{GblRt, TexPt, TexSz, TexUvRect};
-use derive_more::Display;
-use rgb::RGBA8;
 use std::collections::hash_map::IterMut;
 use std::collections::HashMap;
+
+use derive_more::Display;
+use rgb::RGBA8;
+
+use crate::visual::types::{GblRt, TexPt, TexSz, TexUvRect};
 
 pub(super) type TexId = usize;
 

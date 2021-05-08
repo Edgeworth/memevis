@@ -1,13 +1,15 @@
+use std::collections::HashMap;
+
+use glium::glutin::window::CursorIcon;
+use num_traits::Zero;
+use serde::{Deserialize, Serialize};
+
 use crate::visual::gui::layer::LclLayer;
 use crate::visual::gui::layouts::hint::Hint;
 use crate::visual::gui::layouts::layout::{LayoutInfo, LayoutStrategy};
 use crate::visual::gui::layouts::util::compute_child_info;
 use crate::visual::gui::ui::Ui;
 use crate::visual::types::{lrt, lz, LclPt, LclRt, LclSz, LclZ, ZOrder};
-use glium::glutin::window::CursorIcon;
-use num_traits::Zero;
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 enum ResizeDir {
@@ -99,7 +101,7 @@ impl ResizeLayout {
             if ui.io().mouse_just_captured {
                 self.handle_click(ui, &mut w);
             }
-            let mouse_dt = (ltf.pt(ui.io().mouse_pt) - w.mouse_st).as_sz();
+            let mouse_dt = (ltf.pt(ui.io().mouse_pt) - w.mouse_st).to_sz();
             let ResizeInfo { delta_rt, cursor } = get_resize_info(mouse_dt, w.dir, true);
             w.l.r = w.rt_st + delta_rt;
             ui.paint_mut().set_cursor(cursor);

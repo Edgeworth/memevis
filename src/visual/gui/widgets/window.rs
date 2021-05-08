@@ -1,11 +1,12 @@
+use eyre::Result;
+use num_traits::Zero;
+
 use crate::visual::gui::layouts::hint::{Hint, SzOpt};
 use crate::visual::gui::layouts::layout::Layout;
 use crate::visual::gui::layouts::vert_layout::VertLayout;
 use crate::visual::gui::ui::Ui;
 use crate::visual::gui::widgets::widget::{Resp, Widget};
 use crate::visual::types::{lz, LclRt};
-use eyre::Result;
-use num_traits::Zero;
 
 #[derive(Debug, Clone)]
 pub struct Window<F: FnMut(&mut Ui<'_>) -> Result<()>> {
