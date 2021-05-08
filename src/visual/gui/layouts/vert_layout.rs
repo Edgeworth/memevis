@@ -1,10 +1,11 @@
+use num_traits::Zero;
+
 use crate::visual::gui::layer::LclLayer;
 use crate::visual::gui::layouts::hint::Hint;
 use crate::visual::gui::layouts::layout::{LayoutInfo, LayoutStrategy};
 use crate::visual::gui::layouts::util::compute_child_info;
 use crate::visual::gui::ui::Ui;
 use crate::visual::types::{lz, LclPt, LclSz};
-use num_traits::Zero;
 
 #[derive(Debug, Copy, Clone)]
 pub struct VertLayout {

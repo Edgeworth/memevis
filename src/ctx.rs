@@ -1,6 +1,3 @@
-use crate::visual::gui::ui::Ui;
-use crate::visual::render::glium_renderer::GliumRenderer;
-use crate::visual::vis::Vis;
 use eyre::Result;
 use glium::glutin::dpi::LogicalSize;
 use glium::glutin::event::{Event, WindowEvent};
@@ -8,6 +5,10 @@ use glium::glutin::event_loop::{ControlFlow, EventLoop};
 use glium::glutin::window::WindowBuilder;
 use glium::glutin::{GlProfile, Robustness};
 use glium::{glutin, Display, Surface};
+
+use crate::visual::gui::ui::Ui;
+use crate::visual::render::glium_renderer::GliumRenderer;
+use crate::visual::vis::Vis;
 
 pub struct Ctx {
     disp: Display,

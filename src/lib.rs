@@ -3,7 +3,6 @@
     array_chunks,
     array_windows,
     bool_to_option,
-    const_fn,
     const_fn_trait_bound,
     destructuring_assignment,
     is_sorted,

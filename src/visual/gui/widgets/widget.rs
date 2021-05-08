@@ -1,6 +1,7 @@
+use eyre::Result;
+
 use crate::visual::gui::layer::LclLayer;
 use crate::visual::gui::ui::Ui;
-use eyre::Result;
 
 pub struct Resp {
     pub l: LclLayer,

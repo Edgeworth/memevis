@@ -1,11 +1,13 @@
-use crate::any::Basic;
-use crate::visual::types::{GblType, LclType, PrtType, Pt2D, Rt2D, Sz2D, ZOrder};
+use std::marker::PhantomData;
+
 use derive_more::Display;
 use lyon::math::Translation;
 use lyon::path::Path;
 use num_traits::Zero;
 use serde::{Deserialize, Serialize};
-use std::marker::PhantomData;
+
+use crate::any::Basic;
+use crate::visual::types::{GblType, LclType, PrtType, Pt2D, Rt2D, Sz2D, ZOrder};
 
 #[derive(Debug, Default, PartialEq, Copy, Clone, Display, Serialize, Deserialize)]
 #[display(fmt = "Layer({}; {})", r, z)]

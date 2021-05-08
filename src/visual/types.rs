@@ -1,4 +1,6 @@
-use crate::any::{Any, Basic};
+use std::marker::PhantomData;
+use std::ops::Neg;
+
 use derive_more::{Display, From, Into};
 use glium::glutin::dpi::{LogicalPosition, LogicalSize, PhysicalSize};
 use num::{Num, NumCast, ToPrimitive};
@@ -6,8 +8,8 @@ use num_traits::Zero;
 use paste::paste;
 use rgb::RGBA;
 use serde::{Deserialize, Serialize};
-use std::marker::PhantomData;
-use std::ops::Neg;
+
+use crate::any::{Any, Basic};
 
 pub trait Number = Clone + Copy + Num + NumCast + Default + PartialOrd + PartialEq;
 pub type Col = RGBA<f32>;
@@ -379,10 +381,6 @@ impl<T: Number, U> Pt2D<T, U> {
     }
 
     pub fn to_sz(&self) -> Sz2D<T, U> {
-        Sz2D::new(self.x, self.y)
-    }
-
-    pub fn as_sz(&self) -> Sz2D<T, U> {
         Sz2D::new(self.x, self.y)
     }
 

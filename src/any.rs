@@ -1,8 +1,8 @@
+use std::fmt;
 use std::hash::Hash;
 
 use derive_more::{Display, From, Into};
 use serde::{Deserialize, Serialize};
-use std::fmt;
 
 #[derive(
     Debug,

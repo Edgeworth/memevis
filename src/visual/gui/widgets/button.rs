@@ -1,10 +1,11 @@
+use eyre::Result;
+
 use crate::visual::gui::layouts::hint::Hint;
 use crate::visual::gui::layouts::layout::Layout;
 use crate::visual::gui::layouts::vert_layout::VertLayout;
 use crate::visual::gui::ui::Ui;
 use crate::visual::gui::widgets::label::Label;
 use crate::visual::gui::widgets::widget::{combine_ids, Resp, Widget};
-use eyre::Result;
 
 #[derive(Debug)]
 pub struct Button<F: FnOnce(&mut Ui<'_>)> {
