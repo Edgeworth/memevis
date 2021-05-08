@@ -1,7 +1,7 @@
 use crate::any::{Any, Basic};
 use derive_more::{Display, From, Into};
 use glium::glutin::dpi::{LogicalPosition, LogicalSize, PhysicalSize};
-use num::{Num, NumCast};
+use num::{Num, NumCast, ToPrimitive};
 use num_traits::Zero;
 use paste::paste;
 use rgb::RGBA;
@@ -553,24 +553,24 @@ pub type TexSz = Sz2D<u32, TexType>;
 pub type TexCoord = Pt2D<f64, TexType>;
 pub type TexUvRect = Rt2D<f64, TexType>;
 
-pub fn trt<X: NumCast, Y: NumCast, W: NumCast, H: NumCast>(x: X, y: Y, w: W, h: H) -> TexRt {
-    Rt2D::new(
-        num::cast::<X, u32>(x).unwrap(),
-        num::cast::<Y, u32>(y).unwrap(),
-        num::cast::<W, u32>(w).unwrap(),
-        num::cast::<H, u32>(h).unwrap(),
-    )
+pub fn trt<X: ToPrimitive, Y: ToPrimitive, W: ToPrimitive, H: ToPrimitive>(
+    x: X,
+    y: Y,
+    w: W,
+    h: H,
+) -> TexRt {
+    Rt2D::new(x.to_u32().unwrap(), y.to_u32().unwrap(), w.to_u32().unwrap(), h.to_u32().unwrap())
 }
 
-pub fn tpt<X: NumCast, Y: NumCast>(x: X, y: Y) -> TexPt {
-    Pt2D::new(num::cast::<X, u32>(x).unwrap(), num::cast::<Y, u32>(y).unwrap())
+pub fn tpt<X: ToPrimitive, Y: ToPrimitive>(x: X, y: Y) -> TexPt {
+    Pt2D::new(x.to_u32().unwrap(), y.to_u32().unwrap())
 }
 
-pub fn tsz<W: NumCast, H: NumCast>(w: W, h: H) -> TexSz {
-    Sz2D::new(num::cast::<W, u32>(w).unwrap(), num::cast::<H, u32>(h).unwrap())
+pub fn tsz<W: ToPrimitive, H: ToPrimitive>(w: W, h: H) -> TexSz {
+    Sz2D::new(w.to_u32().unwrap(), h.to_u32().unwrap())
 }
 
-impl<T: Num + NumCast> From<PhysicalSize<T>> for TexSz {
+impl<T: ToPrimitive> From<PhysicalSize<T>> for TexSz {
     fn from(sz: PhysicalSize<T>) -> Self {
         tsz(sz.width, sz.height)
     }
@@ -599,30 +599,30 @@ pub type GblPt = Pt2D<f64, GblType>;
 pub type GblSz = Sz2D<f64, GblType>;
 pub type GblZ = ZOrder<GblType>;
 
-pub fn grt<X: NumCast, Y: NumCast, W: NumCast, H: NumCast>(x: X, y: Y, w: W, h: H) -> GblRt {
-    Rt2D::new(
-        num::cast::<X, f64>(x).unwrap(),
-        num::cast::<Y, f64>(y).unwrap(),
-        num::cast::<W, f64>(w).unwrap(),
-        num::cast::<H, f64>(h).unwrap(),
-    )
+pub fn grt<X: ToPrimitive, Y: ToPrimitive, W: ToPrimitive, H: ToPrimitive>(
+    x: X,
+    y: Y,
+    w: W,
+    h: H,
+) -> GblRt {
+    Rt2D::new(x.to_f64().unwrap(), y.to_f64().unwrap(), w.to_f64().unwrap(), h.to_f64().unwrap())
 }
 
-pub fn gpt<X: NumCast, Y: NumCast>(x: X, y: Y) -> GblPt {
-    Pt2D::new(num::cast::<X, f64>(x).unwrap(), num::cast::<Y, f64>(y).unwrap())
+pub fn gpt<X: ToPrimitive, Y: ToPrimitive>(x: X, y: Y) -> GblPt {
+    Pt2D::new(x.to_f64().unwrap(), y.to_f64().unwrap())
 }
 
-pub fn gsz<W: NumCast, H: NumCast>(w: W, h: H) -> GblSz {
-    Sz2D::new(num::cast::<W, f64>(w).unwrap(), num::cast::<H, f64>(h).unwrap())
+pub fn gsz<W: ToPrimitive, H: ToPrimitive>(w: W, h: H) -> GblSz {
+    Sz2D::new(w.to_f64().unwrap(), h.to_f64().unwrap())
 }
 
-impl<T: Num + NumCast> From<LogicalSize<T>> for GblSz {
+impl<T: ToPrimitive> From<LogicalSize<T>> for GblSz {
     fn from(sz: LogicalSize<T>) -> Self {
         gsz(sz.width, sz.height)
     }
 }
 
-impl<T: Num + NumCast> From<LogicalPosition<T>> for GblPt {
+impl<T: ToPrimitive> From<LogicalPosition<T>> for GblPt {
     fn from(p: LogicalPosition<T>) -> Self {
         gpt(p.x, p.y)
     }
@@ -651,25 +651,25 @@ pub type LclPt = Pt2D<f64, LclType>;
 pub type LclSz = Sz2D<f64, LclType>;
 pub type LclZ = ZOrder<LclType>;
 
-pub fn lrt<X: NumCast, Y: NumCast, W: NumCast, H: NumCast>(x: X, y: Y, w: W, h: H) -> LclRt {
-    Rt2D::new(
-        num::cast::<X, f64>(x).unwrap(),
-        num::cast::<Y, f64>(y).unwrap(),
-        num::cast::<W, f64>(w).unwrap(),
-        num::cast::<H, f64>(h).unwrap(),
-    )
+pub fn lrt<X: ToPrimitive, Y: ToPrimitive, W: ToPrimitive, H: ToPrimitive>(
+    x: X,
+    y: Y,
+    w: W,
+    h: H,
+) -> LclRt {
+    Rt2D::new(x.to_f64().unwrap(), y.to_f64().unwrap(), w.to_f64().unwrap(), h.to_f64().unwrap())
 }
 
-pub fn lpt<X: NumCast, Y: NumCast>(x: X, y: Y) -> LclPt {
-    Pt2D::new(num::cast::<X, f64>(x).unwrap(), num::cast::<Y, f64>(y).unwrap())
+pub fn lpt<X: ToPrimitive, Y: ToPrimitive>(x: X, y: Y) -> LclPt {
+    Pt2D::new(x.to_f64().unwrap(), y.to_f64().unwrap())
 }
 
-pub fn lsz<W: NumCast, H: NumCast>(w: W, h: H) -> LclSz {
-    Sz2D::new(num::cast::<W, f64>(w).unwrap(), num::cast::<H, f64>(h).unwrap())
+pub fn lsz<W: ToPrimitive, H: ToPrimitive>(w: W, h: H) -> LclSz {
+    Sz2D::new(w.to_f64().unwrap(), h.to_f64().unwrap())
 }
 
-pub fn lz<Z: NumCast>(z: Z) -> LclZ {
-    ZOrder::new(num::cast::<Z, i32>(z).unwrap())
+pub fn lz<Z: ToPrimitive>(z: Z) -> LclZ {
+    ZOrder::new(z.to_i32().unwrap())
 }
 
 #[derive(
@@ -699,17 +699,17 @@ pub type Rt = Rt2D<f64, Any>;
 pub type Pt = Pt2D<f64, Any>;
 pub type Sz = Sz2D<f64, Any>;
 
-pub fn rt<X: NumCast, Y: NumCast, W: NumCast, H: NumCast>(x: X, y: Y, w: W, h: H) -> Rt {
-    Rt2D::new(
-        num::cast::<X, f64>(x).unwrap(),
-        num::cast::<Y, f64>(y).unwrap(),
-        num::cast::<W, f64>(w).unwrap(),
-        num::cast::<H, f64>(h).unwrap(),
-    )
+pub fn rt<X: ToPrimitive, Y: ToPrimitive, W: ToPrimitive, H: ToPrimitive>(
+    x: X,
+    y: Y,
+    w: W,
+    h: H,
+) -> Rt {
+    Rt2D::new(x.to_f64().unwrap(), y.to_f64().unwrap(), w.to_f64().unwrap(), h.to_f64().unwrap())
 }
 
-pub fn pt<X: NumCast, Y: NumCast>(x: X, y: Y) -> Pt {
-    Pt2D::new(num::cast::<X, f64>(x).unwrap(), num::cast::<Y, f64>(y).unwrap())
+pub fn pt<X: ToPrimitive, Y: ToPrimitive>(x: X, y: Y) -> Pt {
+    Pt2D::new(x.to_f64().unwrap(), y.to_f64().unwrap())
 }
 
 pub const MAX_Z: LclZ = ZOrder::new(100000000);
