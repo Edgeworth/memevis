@@ -1,8 +1,9 @@
+use eyre::Result;
+
 use crate::visual::gui::layer::LclLayer;
 use crate::visual::gui::layouts::hint::Grav;
 use crate::visual::gui::ui::Ui;
 use crate::visual::types::{lpt, lz, LclPt, LclRt};
-use eyre::Result;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Frag {

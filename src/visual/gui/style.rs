@@ -1,10 +1,12 @@
+use std::cell::Cell;
+use std::sync::Arc;
+
+use rgb::{ComponentMap, RGBA};
+
 use crate::visual::gui::layer::GblTf;
 use crate::visual::render::painter::PaintCtx;
 use crate::visual::types::{lsz, Col, LclSz, LclZ};
 use crate::visual::vis::FontId;
-use rgb::{ComponentMap, RGBA};
-use std::cell::Cell;
-use std::sync::Arc;
 
 pub struct PaintCtxScope {
     pctx: Arc<Cell<PaintCtx>>,

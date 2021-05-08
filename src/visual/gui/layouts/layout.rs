@@ -1,11 +1,12 @@
+use dyn_clone::DynClone;
+use eyre::Result;
+use num_traits::Zero;
+
 use crate::visual::gui::layer::{GblTf, LclLayer, PrtLayer, PrtTf};
 use crate::visual::gui::layouts::hint::Hint;
 use crate::visual::gui::layouts::util::natural_layer_in_parent;
 use crate::visual::gui::ui::Ui;
 use crate::visual::types::{GblZ, PrtZ, Pt2D};
-use dyn_clone::DynClone;
-use eyre::Result;
-use num_traits::Zero;
 
 #[derive(Debug, Default, PartialEq, Copy, Clone)]
 pub struct LayoutInfo {

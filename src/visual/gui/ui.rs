@@ -1,3 +1,11 @@
+use std::cell::Cell;
+use std::sync::Arc;
+
+use eyre::Result;
+use lyon::math::Angle;
+use lyon::path::Path;
+use num_traits::Zero;
+
 use crate::visual::colors::{GREEN, RED};
 use crate::visual::gui::layer::{LclLayer, PrtLayer};
 use crate::visual::gui::layouts::hint::Hint;
@@ -13,12 +21,6 @@ use crate::visual::render::painter::{PaintCtx, Painter};
 use crate::visual::render::texture::TextureLayer;
 use crate::visual::types::{LclPt, LclRt, LclSz, Pt, MAX_Z};
 use crate::visual::vis::{Memory, Vis};
-use eyre::Result;
-use lyon::math::Angle;
-use lyon::path::Path;
-use num_traits::Zero;
-use std::cell::Cell;
-use std::sync::Arc;
 
 pub struct Ui<'a> {
     pub s: Style,

@@ -1,3 +1,11 @@
+use std::any::Any;
+use std::collections::HashMap;
+use std::fs::File;
+use std::path::{Path, PathBuf};
+
+use eyre::{eyre, Result};
+use serde::{Deserialize, Serialize};
+
 use crate::visual::gui::layer::GblLayer;
 use crate::visual::gui::layouts::hint::Hint;
 use crate::visual::gui::layouts::layout::{Layout, LayoutInfo};
@@ -7,12 +15,6 @@ use crate::visual::io::Io;
 use crate::visual::render::font::Font;
 use crate::visual::render::painter::Painter;
 use crate::visual::types::{GblSz, LclSz};
-use eyre::{eyre, Result};
-use serde::{Deserialize, Serialize};
-use std::any::Any;
-use std::collections::HashMap;
-use std::fs::File;
-use std::path::{Path, PathBuf};
 
 pub type FontId = u32;
 
@@ -154,8 +156,9 @@ impl Vis {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use tempfile::tempdir;
+
+    use super::*;
 
     #[test]
     fn memory_serialization() {

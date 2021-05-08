@@ -1,10 +1,11 @@
+use eyre::Result;
+use num_traits::Zero;
+
 use crate::visual::gui::layouts::hint::Hint;
 use crate::visual::gui::text::Frag;
 use crate::visual::gui::ui::Ui;
 use crate::visual::gui::widgets::widget::{Resp, Widget};
 use crate::visual::types::LclPt;
-use eyre::Result;
-use num_traits::Zero;
 
 #[derive(Debug)]
 pub struct Label {

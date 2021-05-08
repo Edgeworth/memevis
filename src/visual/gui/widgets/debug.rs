@@ -1,7 +1,8 @@
-use crate::visual::gui::ui::Ui;
-use crate::visual::types::ZOrder;
 use eyre::Result;
 use num_traits::Zero;
+
+use crate::visual::gui::ui::Ui;
+use crate::visual::types::ZOrder;
 
 pub fn debug_pane(ui: &mut Ui<'_>) -> Result<()> {
     ui.button("[debug] show layout", |ui| ui.mem_mut().debug = !ui.mem().debug)?;

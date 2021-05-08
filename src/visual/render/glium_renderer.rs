@@ -1,7 +1,6 @@
-use crate::errors::StringErrorConversion;
-use crate::visual::render::painter::{PaintCtx, PaintOp, Painter};
-use crate::visual::render::texture::{TexId, TexStore};
-use crate::visual::types::{lsz, tpt, Col, GblZ, TexRt, TexSz};
+use std::collections::{BTreeMap, HashMap};
+use std::convert::TryInto;
+
 use eyre::{eyre, Result};
 use glium::index::PrimitiveType;
 use glium::program::ProgramCreationInput;
@@ -22,8 +21,11 @@ use lyon::tessellation::{
     StrokeTessellator, StrokeVertexConstructor, VertexBuffers,
 };
 use rgb::ComponentBytes;
-use std::collections::{BTreeMap, HashMap};
-use std::convert::TryInto;
+
+use crate::errors::StringErrorConversion;
+use crate::visual::render::painter::{PaintCtx, PaintOp, Painter};
+use crate::visual::render::texture::{TexId, TexStore};
+use crate::visual::types::{lsz, tpt, Col, GblZ, TexRt, TexSz};
 
 const TOLERANCE: f32 = 0.1;
 

@@ -1,8 +1,10 @@
-use crate::visual::types::{pt, GblPt, GblSz, GblZ, Pt};
+use std::time::Instant;
+
 use glium::glutin::event::{ElementState, MouseButton, MouseScrollDelta, WindowEvent};
 use glium::glutin::window::Window;
 use num_traits::Zero;
-use std::time::Instant;
+
+use crate::visual::types::{pt, GblPt, GblSz, GblZ, Pt};
 
 #[derive(Debug)]
 pub struct Io {
