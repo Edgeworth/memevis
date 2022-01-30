@@ -27,7 +27,7 @@ impl Ctx {
         let win = WindowBuilder::new()
             .with_title("hodlr")
             .with_inner_size(LogicalSize::new(1024f64, 768f64));
-        let disp = Display::new(win, gl, &ev).expect("Failed to initialize display");
+        let disp = Display::new(win, gl, ev).expect("Failed to initialize display");
         let scale = disp.gl_window().window().scale_factor();
         let scr_sz = disp.gl_window().window().inner_size().to_logical::<f64>(scale).into();
         let vis = Vis::new(scale as f64, scr_sz)?;
@@ -51,7 +51,6 @@ impl Ctx {
     ) -> Result<()> {
         *flow = ControlFlow::Wait;
         match e {
-            Event::NewEvents(_) => {}
             Event::RedrawRequested(_) => {
                 let mut ui = self.vis.begin();
                 f(&mut ui)?;
@@ -65,7 +64,7 @@ impl Ctx {
             }
             Event::WindowEvent { event: WindowEvent::CloseRequested, .. } => {
                 self.vis.exit()?;
-                *flow = ControlFlow::Exit
+                *flow = ControlFlow::Exit;
             }
             Event::WindowEvent { event, .. } => {
                 self.vis.io_mut().process_event(self.disp.gl_window().window(), event);

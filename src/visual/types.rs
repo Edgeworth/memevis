@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use std::ops::Neg;
 
-use derive_more::{Display, From, Into};
+use derive_more::{Display, From};
 use glium::glutin::dpi::{LogicalPosition, LogicalSize, PhysicalSize};
 use num::{Num, NumCast, ToPrimitive};
 use num_traits::Zero;
@@ -287,14 +287,17 @@ impl<T: Number, U: Basic> Rt2D<T, U> {
         )
     }
 
+    #[must_use]
     pub fn with_sz(&self, sz: Sz2D<T, U>) -> Rt2D<T, U> {
         Rt2D::ptsz(self.tl(), sz)
     }
 
+    #[must_use]
     pub fn inset(&self, d: Sz2D<T, U>) -> Rt2D<T, U> {
         self.inset_xy(d.w, d.h)
     }
 
+    #[must_use]
     pub fn inset_xy(&self, dx: T, dy: T) -> Rt2D<T, U> {
         let v2 = num::cast::<i32, T>(2).unwrap();
         let wsub = if v2 * dx < self.w { v2 * dx } else { self.w };
@@ -384,6 +387,7 @@ impl<T: Number, U> Pt2D<T, U> {
         Sz2D::new(self.x, self.y)
     }
 
+    #[must_use]
     pub fn offset(&self, dx: T, dy: T) -> Pt2D<T, U> {
         Pt2D::new(self.x + dx, self.y + dy)
     }
@@ -456,11 +460,13 @@ impl<T: Number, U> Sz2D<T, U> {
         self.w * self.h
     }
 
-    pub fn min(self, o: Sz2D<T, U>) -> Self {
+    #[must_use]
+    pub fn min(self, o: &Sz2D<T, U>) -> Self {
         Self::new(if self.w < o.w { self.w } else { o.w }, if self.h < o.h { self.h } else { o.h })
     }
 
-    pub fn max(self, o: Sz2D<T, U>) -> Self {
+    #[must_use]
+    pub fn max(self, o: &Sz2D<T, U>) -> Self {
         Self::new(if self.w > o.w { self.w } else { o.w }, if self.h > o.h { self.h } else { o.h })
     }
 }
@@ -529,10 +535,12 @@ impl<U: Basic> Zero for ZOrder<U> {
 }
 
 impl<U> ZOrder<U> {
+    #[must_use]
     pub const fn new(z: i32) -> Self {
         Self { z, _u: PhantomData }
     }
 
+    #[must_use]
     pub const fn coerce<V>(&self) -> ZOrder<V> {
         ZOrder::new(self.z)
     }
@@ -540,9 +548,7 @@ impl<U> ZOrder<U> {
 
 binop_scalar_scalar!(ZOrder<U>, z; ZOrder<U>, z; Add, add, +; Sub, sub, -;);
 
-#[derive(
-    Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone, Display, From, Into,
-)]
+#[derive(Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone, Display, From)]
 pub struct TexType;
 
 pub type TexRt = Rt2D<u32, TexType>;
@@ -551,7 +557,12 @@ pub type TexSz = Sz2D<u32, TexType>;
 pub type TexCoord = Pt2D<f64, TexType>;
 pub type TexUvRect = Rt2D<f64, TexType>;
 
-pub fn trt<X: ToPrimitive, Y: ToPrimitive, W: ToPrimitive, H: ToPrimitive>(
+pub fn trt<
+    X: ToPrimitive + Copy,
+    Y: ToPrimitive + Copy,
+    W: ToPrimitive + Copy,
+    H: ToPrimitive + Copy,
+>(
     x: X,
     y: Y,
     w: W,
@@ -560,15 +571,15 @@ pub fn trt<X: ToPrimitive, Y: ToPrimitive, W: ToPrimitive, H: ToPrimitive>(
     Rt2D::new(x.to_u32().unwrap(), y.to_u32().unwrap(), w.to_u32().unwrap(), h.to_u32().unwrap())
 }
 
-pub fn tpt<X: ToPrimitive, Y: ToPrimitive>(x: X, y: Y) -> TexPt {
+pub fn tpt<X: ToPrimitive + Copy, Y: ToPrimitive + Copy>(x: X, y: Y) -> TexPt {
     Pt2D::new(x.to_u32().unwrap(), y.to_u32().unwrap())
 }
 
-pub fn tsz<W: ToPrimitive, H: ToPrimitive>(w: W, h: H) -> TexSz {
+pub fn tsz<W: ToPrimitive + Copy, H: ToPrimitive + Copy>(w: W, h: H) -> TexSz {
     Sz2D::new(w.to_u32().unwrap(), h.to_u32().unwrap())
 }
 
-impl<T: ToPrimitive> From<PhysicalSize<T>> for TexSz {
+impl<T: ToPrimitive + Copy> From<PhysicalSize<T>> for TexSz {
     fn from(sz: PhysicalSize<T>) -> Self {
         tsz(sz.width, sz.height)
     }
@@ -586,7 +597,6 @@ impl<T: ToPrimitive> From<PhysicalSize<T>> for TexSz {
     Clone,
     Display,
     From,
-    Into,
     Serialize,
     Deserialize,
 )]
@@ -597,7 +607,12 @@ pub type GblPt = Pt2D<f64, GblType>;
 pub type GblSz = Sz2D<f64, GblType>;
 pub type GblZ = ZOrder<GblType>;
 
-pub fn grt<X: ToPrimitive, Y: ToPrimitive, W: ToPrimitive, H: ToPrimitive>(
+pub fn grt<
+    X: ToPrimitive + Copy,
+    Y: ToPrimitive + Copy,
+    W: ToPrimitive + Copy,
+    H: ToPrimitive + Copy,
+>(
     x: X,
     y: Y,
     w: W,
@@ -606,21 +621,21 @@ pub fn grt<X: ToPrimitive, Y: ToPrimitive, W: ToPrimitive, H: ToPrimitive>(
     Rt2D::new(x.to_f64().unwrap(), y.to_f64().unwrap(), w.to_f64().unwrap(), h.to_f64().unwrap())
 }
 
-pub fn gpt<X: ToPrimitive, Y: ToPrimitive>(x: X, y: Y) -> GblPt {
+pub fn gpt<X: ToPrimitive + Copy, Y: ToPrimitive + Copy>(x: X, y: Y) -> GblPt {
     Pt2D::new(x.to_f64().unwrap(), y.to_f64().unwrap())
 }
 
-pub fn gsz<W: ToPrimitive, H: ToPrimitive>(w: W, h: H) -> GblSz {
+pub fn gsz<W: ToPrimitive + Copy, H: ToPrimitive + Copy>(w: W, h: H) -> GblSz {
     Sz2D::new(w.to_f64().unwrap(), h.to_f64().unwrap())
 }
 
-impl<T: ToPrimitive> From<LogicalSize<T>> for GblSz {
+impl<T: ToPrimitive + Copy> From<LogicalSize<T>> for GblSz {
     fn from(sz: LogicalSize<T>) -> Self {
         gsz(sz.width, sz.height)
     }
 }
 
-impl<T: ToPrimitive> From<LogicalPosition<T>> for GblPt {
+impl<T: ToPrimitive + Copy> From<LogicalPosition<T>> for GblPt {
     fn from(p: LogicalPosition<T>) -> Self {
         gpt(p.x, p.y)
     }
@@ -638,7 +653,6 @@ impl<T: ToPrimitive> From<LogicalPosition<T>> for GblPt {
     Clone,
     Display,
     From,
-    Into,
     Serialize,
     Deserialize,
 )]
@@ -649,7 +663,12 @@ pub type LclPt = Pt2D<f64, LclType>;
 pub type LclSz = Sz2D<f64, LclType>;
 pub type LclZ = ZOrder<LclType>;
 
-pub fn lrt<X: ToPrimitive, Y: ToPrimitive, W: ToPrimitive, H: ToPrimitive>(
+pub fn lrt<
+    X: ToPrimitive + Copy,
+    Y: ToPrimitive + Copy,
+    W: ToPrimitive + Copy,
+    H: ToPrimitive + Copy,
+>(
     x: X,
     y: Y,
     w: W,
@@ -658,15 +677,15 @@ pub fn lrt<X: ToPrimitive, Y: ToPrimitive, W: ToPrimitive, H: ToPrimitive>(
     Rt2D::new(x.to_f64().unwrap(), y.to_f64().unwrap(), w.to_f64().unwrap(), h.to_f64().unwrap())
 }
 
-pub fn lpt<X: ToPrimitive, Y: ToPrimitive>(x: X, y: Y) -> LclPt {
+pub fn lpt<X: ToPrimitive + Copy, Y: ToPrimitive + Copy>(x: X, y: Y) -> LclPt {
     Pt2D::new(x.to_f64().unwrap(), y.to_f64().unwrap())
 }
 
-pub fn lsz<W: ToPrimitive, H: ToPrimitive>(w: W, h: H) -> LclSz {
+pub fn lsz<W: ToPrimitive + Copy, H: ToPrimitive + Copy>(w: W, h: H) -> LclSz {
     Sz2D::new(w.to_f64().unwrap(), h.to_f64().unwrap())
 }
 
-pub fn lz<Z: ToPrimitive>(z: Z) -> LclZ {
+pub fn lz<Z: ToPrimitive + Copy>(z: Z) -> LclZ {
     ZOrder::new(z.to_i32().unwrap())
 }
 
@@ -682,7 +701,6 @@ pub fn lz<Z: ToPrimitive>(z: Z) -> LclZ {
     Clone,
     Display,
     From,
-    Into,
     Serialize,
     Deserialize,
 )]
@@ -697,7 +715,12 @@ pub type Rt = Rt2D<f64, Any>;
 pub type Pt = Pt2D<f64, Any>;
 pub type Sz = Sz2D<f64, Any>;
 
-pub fn rt<X: ToPrimitive, Y: ToPrimitive, W: ToPrimitive, H: ToPrimitive>(
+pub fn rt<
+    X: ToPrimitive + Copy,
+    Y: ToPrimitive + Copy,
+    W: ToPrimitive + Copy,
+    H: ToPrimitive + Copy,
+>(
     x: X,
     y: Y,
     w: W,
@@ -706,7 +729,7 @@ pub fn rt<X: ToPrimitive, Y: ToPrimitive, W: ToPrimitive, H: ToPrimitive>(
     Rt2D::new(x.to_f64().unwrap(), y.to_f64().unwrap(), w.to_f64().unwrap(), h.to_f64().unwrap())
 }
 
-pub fn pt<X: ToPrimitive, Y: ToPrimitive>(x: X, y: Y) -> Pt {
+pub fn pt<X: ToPrimitive + Copy, Y: ToPrimitive + Copy>(x: X, y: Y) -> Pt {
     Pt2D::new(x.to_f64().unwrap(), y.to_f64().unwrap())
 }
 

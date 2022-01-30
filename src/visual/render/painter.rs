@@ -47,22 +47,27 @@ impl Default for PaintCtx {
 }
 
 impl PaintCtx {
+    #[must_use]
     pub fn new() -> Self {
         Self { line_width: 1.0, z: lz(0), col: WHITE, tf: GblTf::default() }
     }
 
+    #[must_use]
     pub fn tf(self, tf: GblTf) -> Self {
         Self { tf, ..self }
     }
 
+    #[must_use]
     pub fn col(self, col: Col) -> Self {
         Self { col, ..self }
     }
 
+    #[must_use]
     pub fn z(self, z: LclZ) -> Self {
         Self { z, ..self }
     }
 
+    #[must_use]
     pub fn line_width(self, line_width: f64) -> Self {
         Self { line_width, ..self }
     }
@@ -77,6 +82,7 @@ pub struct Painter {
 }
 
 impl Painter {
+    #[must_use]
     pub fn new() -> Self {
         let mut ts = TexStore::new();
         let atlas = Atlas::new(&mut ts);
@@ -165,7 +171,7 @@ impl Painter {
     }
 
     pub fn write_px(&mut self, hnd: TexHandle, p: TexPt, c: RGBA8) {
-        self.atlas.write_px(&mut self.ts, hnd, p, c)
+        self.atlas.write_px(&mut self.ts, hnd, p, c);
     }
 }
 

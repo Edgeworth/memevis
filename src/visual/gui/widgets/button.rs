@@ -37,7 +37,7 @@ impl<F: FnOnce(&mut Ui<'_>)> Widget for Button<F> {
         let col = if ui.pressed(&id, l) { ui.s.light_col.alpha(0.1) } else { col };
         if ui.clicked(&id, l) {
             if let Some(f) = self.cb.take() {
-                f(ui)
+                f(ui);
             }
         }
 

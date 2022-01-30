@@ -15,25 +15,30 @@ pub struct PaintCtxScope {
 
 #[allow(dead_code)]
 impl PaintCtxScope {
+    #[must_use]
     pub fn new(pctx: Arc<Cell<PaintCtx>>, restore_pctx: PaintCtx) -> Self {
         Self { pctx, restore_pctx }
     }
 
+    #[allow(clippy::must_use_candidate)]
     pub fn tf(&self, tf: GblTf) -> &Self {
         self.pctx.set(self.pctx.get().tf(tf));
         self
     }
 
+    #[allow(clippy::must_use_candidate)]
     pub fn col(&self, col: Col) -> &Self {
         self.pctx.set(self.pctx.get().col(col));
         self
     }
 
+    #[allow(clippy::must_use_candidate)]
     pub fn z(&self, z: LclZ) -> &Self {
         self.pctx.set(self.pctx.get().z(z));
         self
     }
 
+    #[allow(clippy::must_use_candidate)]
     pub fn line_width(&self, line_width: f64) -> &Self {
         self.pctx.set(self.pctx.get().line_width(line_width));
         self
@@ -59,6 +64,7 @@ pub struct Style {
 }
 
 impl Style {
+    #[must_use]
     pub fn new() -> Self {
         let f = |c| c as f32 / 255.0;
         Self {
