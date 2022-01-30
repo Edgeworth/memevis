@@ -67,14 +67,17 @@ pub struct ResizeLayout {
 }
 
 impl ResizeLayout {
+    #[must_use]
     pub fn new(info: LayoutInfo) -> Self {
         Self { info, loc: LclPt::zero() }
     }
 
+    #[allow(clippy::unused_self)]
     fn hitbox(&self, w: &WindowState) -> LclLayer {
         w.l.inset(RESIZE_INSET)
     }
 
+    #[allow(clippy::unused_self)]
     fn state<'a>(&self, ui: &'a mut Ui<'_>) -> &'a mut ResizeState {
         let id = ui.id().to_owned();
         &mut ui.mem_mut().wid(&id).pos

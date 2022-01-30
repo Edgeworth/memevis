@@ -15,6 +15,7 @@ pub struct VertLayout {
 }
 
 impl VertLayout {
+    #[must_use]
     pub fn new(info: LayoutInfo) -> Self {
         Self { info, loc: LclPt::zero(), sz: LclSz::zero() }
     }
@@ -24,7 +25,7 @@ impl VertLayout {
         self.sz.w = self.sz.w.max(l.r.w);
         self.sz.h += l.r.h;
         self.info.hint.min =
-            self.info.hint.min.iter().chain(&[self.sz]).copied().reduce(LclSz::max);
+            self.info.hint.min.iter().chain(&[self.sz]).copied().reduce(|a, b| a.max(&b));
     }
 }
 
@@ -38,6 +39,6 @@ impl LayoutStrategy for VertLayout {
     }
 
     fn place_layer(&mut self, _ui: &mut Ui<'_>, l: &LclLayer, _: &str) {
-        self.advance_cursor(&l);
+        self.advance_cursor(l);
     }
 }
