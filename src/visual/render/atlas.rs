@@ -5,11 +5,12 @@ use rgb::RGBA8;
 
 use crate::visual::render::texture::{TexId, TexStore, TextureLayer};
 use crate::visual::types::{trt, TexPt, TexRt, TexSz, TexUvRect};
+use crate::visual::Rt2D;
 
-pub(super) type AtlasHandle = i32;
+pub type AtlasHandle = i32;
 
 #[derive(Debug)]
-pub(super) struct Atlas {
+pub struct Atlas {
     p: Packer,
     tex: TexId,
     hnds: Vec<TexRt>,
@@ -49,28 +50,29 @@ impl Atlas {
         ts.get_mut(self.tex).write(self.hnds[hnd as usize].tl() + p + PAD, c);
     }
 
+    #[must_use]
     pub fn get_layer(&self, tex: AtlasHandle) -> TextureLayer {
         let r = self.hnds[tex as usize].to_f64();
         let sz = self.p.sz.to_f64();
         let uv = TexUvRect::new(r.x / sz.w, r.y / sz.h, r.w / sz.w, r.h / sz.h);
         let uv = uv.inset(PAD.to_f64() / sz);
-        TextureLayer::new(Default::default(), uv, self.tex)
+        TextureLayer::new(Rt2D::default(), uv, self.tex)
     }
 }
 
 #[derive(Debug)]
 struct Packer {
-    pub sz: TexSz,
+    sz: TexSz,
     cur: TexPt,
     maxh: u32,
 }
 
 impl Packer {
-    pub fn new(s: TexSz) -> Self {
+    fn new(s: TexSz) -> Self {
         Self { sz: s, cur: (0, 0).into(), maxh: 0 }
     }
 
-    pub fn pack(&mut self, sz: TexSz) -> Option<TexRt> {
+    fn pack(&mut self, sz: TexSz) -> Option<TexRt> {
         if self.cur.x + sz.w <= self.sz.w && self.cur.y + sz.h <= self.sz.h {
             // Pack horizontally
             let r = TexRt::ptsz(self.cur, sz);

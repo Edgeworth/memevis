@@ -7,10 +7,10 @@ use crate::visual::types::{lsz, LclPt, LclRt, LclSz, LclZ};
 
 fn clamp(mut sz: LclSz, min: Option<LclSz>, max: Option<LclSz>) -> LclSz {
     if let Some(min) = min {
-        sz = min.max(sz);
+        sz = min.max(&sz);
     }
     if let Some(max) = max {
-        sz = max.min(sz);
+        sz = max.min(&sz);
     }
     sz
 }
@@ -62,7 +62,7 @@ pub(super) fn compute_child_info(
     let max = max.map(|v| ptf.inv().rt(v.coerce()).sz());
 
     // Choose smallest out of child max and max from parent.
-    let max = child.max.iter().chain(max.iter()).copied().reduce(LclSz::min);
+    let max = child.max.iter().chain(max.iter()).copied().reduce(|a, b| a.min(&b));
 
     // Compute requested size
     let parent_req = h.req.map(|v| ptf.inv().sz((v - offset.to_sz()).coerce()));

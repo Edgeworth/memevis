@@ -16,6 +16,7 @@ pub struct LayoutInfo {
 }
 
 impl LayoutInfo {
+    #[must_use]
     pub fn zero() -> Self {
         LayoutInfo {
             gtf: GblTf::new(Pt2D::zero(), GblZ::zero()),
@@ -24,6 +25,7 @@ impl LayoutInfo {
         }
     }
 
+    #[must_use]
     pub fn hint(self, hint: Hint) -> Self {
         LayoutInfo { hint, ..self }
     }
@@ -51,6 +53,7 @@ impl Layout {
         Self { strat: Box::new(strat) }
     }
 
+    #[must_use]
     pub fn info(&self) -> &LayoutInfo {
         self.strat.info()
     }

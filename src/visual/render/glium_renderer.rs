@@ -44,7 +44,7 @@ struct VertexCtor {
 }
 
 impl VertexCtor {
-    pub fn new(c: Col) -> Self {
+    fn new(c: Col) -> Self {
         Self { c }
     }
 
@@ -72,11 +72,11 @@ impl StrokeVertexConstructor<Vertex> for VertexCtor {
 struct UniformMap<'a>(HashMap<String, Box<dyn 'a + AsUniformValue>>);
 
 impl<'a> UniformMap<'a> {
-    pub fn add_val<T: 'a + AsUniformValue + Copy>(&mut self, name: &str, val: T) {
+    fn add_val<T: 'a + AsUniformValue + Copy>(&mut self, name: &str, val: T) {
         self.0.insert(name.into(), Box::new(val));
     }
 
-    pub fn add_ref<T>(&mut self, name: &str, val: &'a T)
+    fn add_ref<T>(&mut self, name: &str, val: &'a T)
     where
         &'a T: AsUniformValue,
     {
@@ -86,7 +86,7 @@ impl<'a> UniformMap<'a> {
 
 impl Uniforms for UniformMap<'_> {
     fn visit_values<'a, F: FnMut(&str, UniformValue<'a>)>(&'a self, mut f: F) {
-        for (name, val) in self.0.iter() {
+        for (name, val) in &self.0 {
             f(name, val.as_uniform_value());
         }
     }
@@ -184,7 +184,7 @@ impl GliumRenderer {
             if let PaintOp::Texture { tex } = op {
                 geom = geom_map.entry((z, Some(tex.tex))).or_default();
             }
-            let mut buf = BuffersBuilder::new(&mut geom, VertexCtor::new(pctx.col));
+            let mut buf = BuffersBuilder::new(geom, VertexCtor::new(pctx.col));
 
             let line_width_px = pctx.line_width * dtx.disp.gl_window().window().scale_factor();
             let sopt = StrokeOptions::tolerance(TOLERANCE).with_line_width(line_width_px as f32);
@@ -326,7 +326,7 @@ impl GliumRenderer {
         let mut uni = UniformMap(HashMap::new());
         uni.add_val::<(f32, f32)>("screen_dp", (dp.w as f32, dp.h as f32));
 
-        for ((_, tex), geom) in geom_map.iter() {
+        for ((_, tex), geom) in &geom_map {
             let vertices = VertexBuffer::new(dtx.disp, &geom.vertices)?;
             let indices = IndexBuffer::new(dtx.disp, PrimitiveType::TrianglesList, &geom.indices)?;
             uni.add_val("use_tex", tex.is_some());
@@ -334,7 +334,7 @@ impl GliumRenderer {
             if let Some(tid) = tex {
                 uni.add_ref(
                     "sampler",
-                    self.texmap.get(&tid).ok_or_else(|| eyre!("unknown texture id"))?,
+                    self.texmap.get(tid).ok_or_else(|| eyre!("unknown texture id"))?,
                 );
             }
             dtx.frame.draw(&vertices, &indices, &self.prog, &uni, &dtx.draw_params)?;
