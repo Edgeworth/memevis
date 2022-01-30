@@ -4,7 +4,7 @@ use glium::glutin::event::{ElementState, MouseButton, MouseScrollDelta, WindowEv
 use glium::glutin::window::Window;
 use num_traits::Zero;
 
-use crate::visual::types::{pt, GblPt, GblSz, GblZ, Pt};
+use crate::visual::types::{pt, GblPt, GblSz, GblZ, Pt, Pt2D};
 
 #[derive(Debug)]
 pub struct Io {
@@ -16,7 +16,6 @@ pub struct Io {
     pub kbd_captured: Option<String>,
     pub has_mouse: Option<String>,
     pub has_kbd: Option<String>,
-    kbd_req: Option<(GblZ, String, bool)>,
 
     // Mouse:
     pub mouse_pt: GblPt,
@@ -39,11 +38,12 @@ pub struct Io {
 }
 
 impl Io {
+    #[must_use]
     pub fn new(dp_to_px: f64, scr_sz: GblSz) -> Self {
         Self {
-            mouse_pt: Default::default(),
-            prev_mouse_pt: Default::default(),
-            mouse_delta: Default::default(),
+            mouse_pt: Pt2D::default(),
+            prev_mouse_pt: Pt2D::default(),
+            mouse_delta: Pt2D::default(),
             dp_to_px,
             scr_sz,
             mouse_captured: None,
@@ -51,7 +51,7 @@ impl Io {
             has_mouse: None,
             has_kbd: None,
             is_mouse_pressed: false,
-            mouse_pressed_pt: Default::default(),
+            mouse_pressed_pt: Pt2D::default(),
             mouse_just_released: false,
             mouse_just_captured: false,
             begin_frame_time: Instant::now(),
@@ -60,7 +60,6 @@ impl Io {
             frame_num: 0,
             mouse_req: None,
             mouse_capture_req: None,
-            kbd_req: None,
             mouse_scroll: Pt::zero(),
         }
     }
@@ -117,21 +116,9 @@ impl Io {
     pub fn process_event(&mut self, w: &Window, e: WindowEvent<'_>) {
         match e {
             WindowEvent::Resized(ps) => self.scr_sz = ps.to_logical::<f64>(w.scale_factor()).into(),
-            WindowEvent::Moved(_) => {}
-            WindowEvent::CloseRequested => {}
-            WindowEvent::Destroyed => {}
-            WindowEvent::DroppedFile(_) => {}
-            WindowEvent::HoveredFile(_) => {}
-            WindowEvent::HoveredFileCancelled => {}
-            WindowEvent::ReceivedCharacter(_) => {}
-            WindowEvent::Focused(_) => {}
-            WindowEvent::KeyboardInput { .. } => {}
-            WindowEvent::ModifiersChanged(_) => {}
             WindowEvent::CursorMoved { position, .. } => {
                 self.mouse_pt = position.to_logical::<f64>(w.scale_factor()).into();
             }
-            WindowEvent::CursorEntered { .. } => {}
-            WindowEvent::CursorLeft { .. } => {}
             WindowEvent::MouseWheel { delta, .. } => match delta {
                 MouseScrollDelta::LineDelta(x, y) => self.mouse_scroll += pt(x, -y),
                 MouseScrollDelta::PixelDelta(_) => {}
@@ -144,14 +131,11 @@ impl Io {
                     self.mouse_pressed_pt = self.mouse_pt;
                 }
             }
-            WindowEvent::TouchpadPressure { .. } => {}
-            WindowEvent::AxisMotion { .. } => {}
-            WindowEvent::Touch(_) => {}
             WindowEvent::ScaleFactorChanged { scale_factor, new_inner_size } => {
                 self.dp_to_px = scale_factor as f64;
-                self.scr_sz = new_inner_size.to_logical::<f64>(w.scale_factor()).into()
+                self.scr_sz = new_inner_size.to_logical::<f64>(w.scale_factor()).into();
             }
-            WindowEvent::ThemeChanged(_) => {}
+            _ => {}
         }
     }
 }

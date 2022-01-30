@@ -13,6 +13,7 @@ pub struct Label {
 }
 
 impl Label {
+    #[must_use]
     pub fn new(text: &str) -> Label {
         Self { text: text.to_owned() }
     }

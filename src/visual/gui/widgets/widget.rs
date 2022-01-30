@@ -12,6 +12,7 @@ pub trait Widget {
     fn lcl_id(&self, ui: &Ui<'_>) -> String;
 }
 
+#[must_use]
 pub fn combine_ids(ids: &[&str]) -> String {
     ids.iter().fold(String::new(), |cur, next| cur + "##" + next)
 }

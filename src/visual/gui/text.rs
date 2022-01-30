@@ -14,19 +14,23 @@ pub struct Frag {
 }
 
 impl Frag {
+    #[must_use]
     pub fn new(text: &str, sz: f64, p: LclPt) -> Self {
         Self { text: text.to_owned(), grav: (Grav::Begin, Grav::Begin), sz, p }
     }
 
+    #[must_use]
     pub fn pt(self, p: LclPt) -> Self {
         Self { p, ..self }
     }
 
+    #[must_use]
     pub fn hgrav(mut self, g: Grav) -> Self {
         self.grav.0 = g;
         self
     }
 
+    #[must_use]
     pub fn vgrav(mut self, g: Grav) -> Self {
         self.grav.1 = g;
         self

@@ -1,18 +1,45 @@
-#![warn(rust_2018_idioms, clippy::all)]
-#![feature(
-    array_chunks,
-    array_windows,
-    bool_to_option,
-    const_fn_trait_bound,
-    destructuring_assignment,
-    is_sorted,
-    map_first_last,
-    option_result_contains,
-    stmt_expr_attributes,
-    trait_alias
+#![warn(
+    clippy::all,
+    clippy::pedantic,
+    future_incompatible,
+    macro_use_extern_crate,
+    meta_variable_misuse,
+    missing_abi,
+    nonstandard_style,
+    noop_method_call,
+    rust_2018_compatibility,
+    rust_2018_idioms,
+    rust_2021_compatibility,
+    trivial_casts,
+    unreachable_pub,
+    unsafe_code,
+    unsafe_op_in_unsafe_fn,
+    unused_import_braces,
+    unused_lifetimes,
+    unused_qualifications,
+    unused
 )]
+#![allow(
+    clippy::cast_lossless,
+    clippy::cast_possible_truncation,
+    clippy::cast_possible_wrap,
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss,
+    clippy::items_after_statements,
+    clippy::many_single_char_names,
+    clippy::match_on_vec_items,
+    clippy::missing_errors_doc,
+    clippy::missing_panics_doc,
+    clippy::module_name_repetitions,
+    clippy::similar_names,
+    clippy::struct_excessive_bools,
+    clippy::too_many_lines,
+    clippy::unreadable_literal
+)]
+#![allow(clippy::used_underscore_binding)]
+#![feature(option_result_contains, trait_alias)]
 
 pub mod any;
 pub mod ctx;
-mod errors;
+pub mod errors;
 pub mod visual;

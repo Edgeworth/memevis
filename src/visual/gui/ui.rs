@@ -37,6 +37,7 @@ impl<'a> Ui<'a> {
         Self { s, v, l, id: id.to_owned(), pctx: Arc::new(Cell::new(pctx)) }
     }
 
+    #[must_use]
     pub fn mem(&self) -> &Memory {
         self.v.mem()
     }
@@ -45,6 +46,7 @@ impl<'a> Ui<'a> {
         self.v.mem_mut()
     }
 
+    #[must_use]
     pub fn io(&self) -> &Io {
         self.v.io()
     }
@@ -53,6 +55,7 @@ impl<'a> Ui<'a> {
         self.v.io_mut()
     }
 
+    #[must_use]
     pub fn paint(&self) -> &Painter {
         self.v.paint()
     }
@@ -61,10 +64,12 @@ impl<'a> Ui<'a> {
         self.v.paint_mut()
     }
 
+    #[must_use]
     pub fn pctx(&self) -> PaintCtx {
         self.pctx.get()
     }
 
+    #[must_use]
     pub fn push(&self) -> PaintCtxScope {
         let restore_pctx = self.pctx.get();
         let pctx = Arc::clone(&self.pctx);
@@ -121,16 +126,18 @@ impl<'a> Ui<'a> {
         self.l.compute_layer()
     }
 
+    #[must_use]
     pub fn info(&self) -> &LayoutInfo {
         self.l.info()
     }
 
+    #[must_use]
     pub fn id(&self) -> &str {
         &self.id
     }
 
     pub fn wid(&self, w: &impl Widget) -> String {
-        combine_ids(&[&self.id(), &w.lcl_id(self)])
+        combine_ids(&[self.id(), &w.lcl_id(self)])
     }
 
     pub fn hovered(&mut self, id: &str, l: LclLayer) -> bool {
@@ -158,6 +165,7 @@ impl<'a> Ui<'a> {
         io.has_mouse.as_deref() == Some(id) && capture
     }
 
+    #[must_use]
     pub fn clicked(&self, id: &str, l: LclLayer) -> bool {
         let l = self.l.info().gtf.layer(l);
         let io = self.v.io();

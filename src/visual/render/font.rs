@@ -39,7 +39,6 @@ struct LayoutInfo {
     glyphs: Vec<LayoutGlyph>,
     px_size: u32,
     height_dp: f64,
-    line_gap_dp: f64,
 }
 
 impl Font {
@@ -100,14 +99,9 @@ impl Font {
         let vmetrics =
             self.render_font.size_metrics().ok_or_else(|| eyre!("missing font vmetrics"))?;
         let height_dp = (vmetrics.ascender - vmetrics.descender) as f64 / 64.0 / dp_to_px;
-        let line_gap_dp = vmetrics.height as f64 / 64.0 / dp_to_px;
 
-        let mut layout_info = LayoutInfo {
-            glyphs: Vec::with_capacity(positions.len()),
-            px_size,
-            height_dp,
-            line_gap_dp,
-        };
+        let mut layout_info =
+            LayoutInfo { glyphs: Vec::with_capacity(positions.len()), px_size, height_dp };
         for (pos, info) in positions.iter().zip(infos) {
             let adv = gsz(pos.x_advance, pos.y_advance);
             let adv = adv / 64.0 / dp_to_px;

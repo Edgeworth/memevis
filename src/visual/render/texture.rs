@@ -6,20 +6,22 @@ use rgb::RGBA8;
 
 use crate::visual::types::{GblRt, TexPt, TexSz, TexUvRect};
 
-pub(super) type TexId = usize;
+pub type TexId = usize;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct TextureLayer {
     pub r: GblRt,
     pub uv: TexUvRect,
-    pub(super) tex: TexId,
+    pub tex: TexId,
 }
 
 impl TextureLayer {
+    #[must_use]
     pub fn new(r: GblRt, uv: TexUvRect, tex: TexId) -> Self {
         Self { r, uv, tex }
     }
 
+    #[must_use]
     pub fn with_rect(self, r: GblRt) -> Self {
         Self { r, ..self }
     }
@@ -27,7 +29,7 @@ impl TextureLayer {
 
 #[derive(Debug, Eq, PartialEq, Hash, Display)]
 #[display(fmt = "Tex[id:{}, sz:{}, dirty:{}]", id, sz, dirty)]
-pub(super) struct Tex {
+pub struct Tex {
     pub id: TexId,
     pub sz: TexSz,
     pub data: Vec<RGBA8>,
@@ -35,6 +37,7 @@ pub(super) struct Tex {
 }
 
 impl Tex {
+    #[must_use]
     pub fn new(id: TexId, sz: TexSz) -> Self {
         let numpix: usize = sz.w as usize * sz.h as usize;
         let mut data = Vec::with_capacity(numpix);
@@ -49,12 +52,19 @@ impl Tex {
 }
 
 #[derive(Debug)]
-pub(super) struct TexStore {
+pub struct TexStore {
     last_id: TexId,
     texs: HashMap<TexId, Tex>,
 }
 
+impl Default for TexStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TexStore {
+    #[must_use]
     pub fn new() -> Self {
         Self { last_id: 1usize, texs: HashMap::new() }
     }

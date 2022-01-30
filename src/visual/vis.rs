@@ -96,6 +96,7 @@ impl Vis {
         Ok(Self { p, io, mem, f })
     }
 
+    #[must_use]
     pub fn paint(&self) -> &Painter {
         &self.p
     }
@@ -104,6 +105,7 @@ impl Vis {
         &mut self.p
     }
 
+    #[must_use]
     pub fn io(&self) -> &Io {
         &self.io
     }
@@ -112,6 +114,7 @@ impl Vis {
         &mut self.io
     }
 
+    #[must_use]
     pub fn mem(&self) -> &Memory {
         &self.mem
     }

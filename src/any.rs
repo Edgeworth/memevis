@@ -1,7 +1,7 @@
 use std::fmt;
 use std::hash::Hash;
 
-use derive_more::{Display, From, Into};
+use derive_more::{Display, From};
 use serde::{Deserialize, Serialize};
 
 #[derive(
@@ -16,7 +16,6 @@ use serde::{Deserialize, Serialize};
     Clone,
     Display,
     From,
-    Into,
     Serialize,
     Deserialize,
 )]
