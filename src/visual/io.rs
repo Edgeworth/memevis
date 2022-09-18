@@ -132,7 +132,7 @@ impl Io {
                 }
             }
             WindowEvent::ScaleFactorChanged { scale_factor, new_inner_size } => {
-                self.dp_to_px = scale_factor as f64;
+                self.dp_to_px = scale_factor;
                 self.scr_sz = new_inner_size.to_logical::<f64>(w.scale_factor()).into();
             }
             _ => {}

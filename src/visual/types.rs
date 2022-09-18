@@ -1,8 +1,10 @@
+use std::fmt;
 use std::marker::PhantomData;
 use std::ops::Neg;
 
 use derive_more::{Display, From};
 use glium::glutin::dpi::{LogicalPosition, LogicalSize, PhysicalSize};
+use lyon::math::Box2D;
 use num::{Num, NumCast, ToPrimitive};
 use num_traits::Zero;
 use paste::paste;
@@ -11,7 +13,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::any::{Any, Basic};
 
-pub trait Number = Clone + Copy + Num + NumCast + Default + PartialOrd + PartialEq;
+pub trait Number = Clone + Copy + Num + NumCast + Default + PartialOrd + PartialEq + fmt::Display;
 pub type Col = RGBA<f32>;
 
 macro_rules! binop_vec2_vec2 {
@@ -216,7 +218,7 @@ macro_rules! binop_vec2_scalar {
 
 #[repr(C)]
 #[derive(Debug, Default, Eq, PartialEq, Hash, Copy, Clone, Display, Serialize, Deserialize)]
-#[display(fmt = "({}, {}, {}, {})", x, y, w, h)]
+#[display(fmt = "({x}, {y}, {w}, {h})")]
 pub struct Rt2D<T: Number, U> {
     pub x: T,
     pub y: T,
@@ -325,9 +327,9 @@ impl<T: Number, U: Basic> From<Sz2D<T, U>> for Rt2D<T, U> {
     }
 }
 
-impl<T: Number, U: Basic> From<Rt2D<T, U>> for lyon::math::Rect {
+impl<T: Number, U: Basic> From<Rt2D<T, U>> for Box2D {
     fn from(p: Rt2D<T, U>) -> Self {
-        lyon::math::Rect::new(p.tl().into(), p.sz().into())
+        Box2D::new(p.tl().into(), p.br().into())
     }
 }
 
@@ -337,7 +339,7 @@ binop_vec4_vec4!(Rt2D<T, U>, x, y, w, h; Rt2D<T, U>, x, y, w, h; Add, add, +; Su
 
 #[repr(C)]
 #[derive(Debug, Default, Eq, PartialEq, Hash, Copy, Clone, Display, Serialize, Deserialize)]
-#[display(fmt = "({}, {})", x, y)]
+#[display(fmt = "({x}, {y})")]
 pub struct Pt2D<T: Number, U> {
     pub x: T,
     pub y: T,
@@ -422,7 +424,7 @@ binop_vec2_vec2!(Pt2D<T, U>, x, y; Sz2D<T, U>, w, h; Add, add, +; Sub, sub, -;);
 
 #[repr(C)]
 #[derive(Debug, Default, Eq, PartialEq, Hash, Copy, Clone, Display, Serialize, Deserialize)]
-#[display(fmt = "({}, {})", w, h)]
+#[display(fmt = "({w}, {h})")]
 pub struct Sz2D<T: Number, U> {
     pub w: T,
     pub h: T,
@@ -518,7 +520,7 @@ binop_vec2_scalar!(Sz2D<T, U>, w, h; f64, u32, i32; Mul, mul, *; Div, div, /;);
     Serialize,
     Deserialize,
 )]
-#[display(fmt = "Z({})", z)]
+#[display(fmt = "Z({z})")]
 pub struct ZOrder<U> {
     pub z: i32,
     _u: PhantomData<U>,

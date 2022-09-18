@@ -151,7 +151,11 @@ impl<'a> Ui<'a> {
     }
 
     pub fn scrolled(&mut self, id: &str, l: LclLayer) -> Pt {
-        if self.hovered(id, l) { self.io().mouse_scroll } else { Pt::zero() }
+        if self.hovered(id, l) {
+            self.io().mouse_scroll
+        } else {
+            Pt::zero()
+        }
     }
 
     pub fn pressed(&mut self, id: &str, l: LclLayer) -> bool {

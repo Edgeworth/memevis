@@ -17,7 +17,7 @@ pub struct Ctx {
 }
 
 impl Ctx {
-    pub async fn new(ev: &EventLoop<()>) -> Result<Self> {
+    pub fn new(ev: &EventLoop<()>) -> Result<Self> {
         let gl = glutin::ContextBuilder::new()
             .with_vsync(true)
             .with_srgb(false) // We do our own correction in shaders.
@@ -30,7 +30,7 @@ impl Ctx {
         let disp = Display::new(win, gl, ev).expect("Failed to initialize display");
         let scale = disp.gl_window().window().scale_factor();
         let scr_sz = disp.gl_window().window().inner_size().to_logical::<f64>(scale).into();
-        let vis = Vis::new(scale as f64, scr_sz)?;
+        let vis = Vis::new(scale, scr_sz)?;
         let rend = GliumRenderer::new(&disp)?;
         Ok(Self { disp, vis, rend })
     }
