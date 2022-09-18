@@ -14,7 +14,6 @@ use lyon::geom::LineSegment;
 use lyon::lyon_tessellation::{FillVertex, StrokeVertex};
 use lyon::math::Point;
 use lyon::path::builder::BorderRadii;
-use lyon::path::traits::PathBuilder;
 use lyon::path::{Path, Polygon, Winding};
 use lyon::tessellation::{
     BuffersBuilder, FillOptions, FillTessellator, FillVertexConstructor, StrokeOptions,
@@ -321,7 +320,7 @@ impl GliumRenderer {
 
         let gl = dtx.disp.gl_window();
         let sz = TexSz::from(gl.window().inner_size()).to_f64();
-        let sf = gl.window().scale_factor() as f64;
+        let sf = gl.window().scale_factor();
         let dp = sz / sf;
         let mut uni = UniformMap(HashMap::new());
         uni.add_val::<(f32, f32)>("screen_dp", (dp.w as f32, dp.h as f32));

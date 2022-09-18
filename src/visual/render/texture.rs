@@ -28,7 +28,7 @@ impl TextureLayer {
 }
 
 #[derive(Debug, Eq, PartialEq, Hash, Display)]
-#[display(fmt = "Tex[id:{}, sz:{}, dirty:{}]", id, sz, dirty)]
+#[display(fmt = "Tex[id:{id}, sz:{sz}, dirty:{dirty}]")]
 pub struct Tex {
     pub id: TexId,
     pub sz: TexSz,

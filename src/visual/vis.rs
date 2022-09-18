@@ -62,8 +62,7 @@ impl Memory {
     }
 
     pub fn user<T: UserData + Default + 'static>(&mut self, id: &str) -> Result<&mut T> {
-        let any =
-            self.user.entry(id.to_owned()).or_insert_with(|| Box::new(T::default())).get_any();
+        let any = self.user.entry(id.to_owned()).or_insert_with(|| Box::<T>::default()).get_any();
         let any =
             any.downcast_mut::<T>().ok_or_else(|| eyre!("user object type does not match"))?;
         Ok(any)
