@@ -30,7 +30,7 @@ fix:
 update:
   rustup update
   cargo install cargo-udeps cargo-edit
-  cargo upgrade
+  cargo upgrade --incompatible --exclude freetype-rs
   cargo update
   cargo build --workspace --all-features --all-targets
   pre-commit autoupdate
