@@ -37,7 +37,7 @@
     clippy::unreadable_literal
 )]
 #![allow(clippy::used_underscore_binding)]
-#![feature(option_result_contains, trait_alias)]
+#![feature(trait_alias)]
 
 pub mod any;
 pub mod ctx;

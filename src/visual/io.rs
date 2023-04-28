@@ -105,7 +105,7 @@ impl Io {
         let id = id.to_owned();
         if let Some(req) = &self.mouse_capture_req {
             let capture_prolonged = Some(&req.1) == self.mouse_captured.as_ref();
-            if !capture_prolonged && (z >= req.0 || self.mouse_captured.contains(&id)) {
+            if !capture_prolonged && (z >= req.0 || self.mouse_captured.as_ref() == Some(&id)) {
                 self.mouse_capture_req = Some((z, id));
             }
         } else {
