@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-
+use ahash::HashMap;
 use eyre::{eyre, Result};
 use harfbuzz_rs::ClusterLevel::MonotoneCharacters;
 use harfbuzz_rs::GlyphInfo;
@@ -47,7 +46,7 @@ impl Font {
         let render_font = freetype.new_memory_face(FONT_DATA.to_owned(), 0)?;
         let layout_font = hb::Font::new(hb::Face::from_bytes(FONT_DATA, 0));
 
-        Ok(Self { _ft: freetype, render_font, layout_font, m: HashMap::new() })
+        Ok(Self { _ft: freetype, render_font, layout_font, m: HashMap::default() })
     }
 
     fn ensure_glyph(

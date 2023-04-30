@@ -1,6 +1,7 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use std::convert::TryInto;
 
+use ahash::HashMap;
 use eyre::{eyre, Result};
 use glium::index::PrimitiveType;
 use glium::program::ProgramCreationInput;
@@ -125,7 +126,7 @@ impl GliumRenderer {
         Ok(Self {
             filler: FillTessellator::new(),
             stroker: StrokeTessellator::new(),
-            texmap: HashMap::new(),
+            texmap: HashMap::default(),
             prog,
         })
     }
@@ -322,7 +323,7 @@ impl GliumRenderer {
         let sz = TexSz::from(gl.window().inner_size()).to_f64();
         let sf = gl.window().scale_factor();
         let dp = sz / sf;
-        let mut uni = UniformMap(HashMap::new());
+        let mut uni = UniformMap(HashMap::default());
         uni.add_val::<(f32, f32)>("screen_dp", (dp.w as f32, dp.h as f32));
 
         for ((_, tex), geom) in &geom_map {

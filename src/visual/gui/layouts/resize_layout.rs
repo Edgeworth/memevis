@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-
+use ahash::HashMap;
 use glium::glutin::window::CursorIcon;
 use num_traits::Zero;
 use serde::{Deserialize, Serialize};
@@ -50,7 +49,7 @@ pub struct ResizeState {
 
 impl Default for ResizeState {
     fn default() -> Self {
-        Self { wins: HashMap::new(), top_z: lz(0) }
+        Self { wins: HashMap::default(), top_z: lz(0) }
     }
 }
 
