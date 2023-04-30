@@ -1,8 +1,8 @@
 use std::any::Any;
-use std::collections::HashMap;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 
+use ahash::HashMap;
 use eyre::{eyre, Result};
 use serde::{Deserialize, Serialize};
 
@@ -50,9 +50,9 @@ impl Memory {
 
     pub fn new(p: impl AsRef<Path>) -> Self {
         Self {
-            wid: HashMap::new(),
+            wid: HashMap::default(),
             debug: false,
-            user: HashMap::new(),
+            user: HashMap::default(),
             path: p.as_ref().to_path_buf(),
         }
     }
@@ -87,7 +87,7 @@ pub struct Vis {
 impl Vis {
     pub fn new(dp_to_px: f64, scr_sz: GblSz) -> Result<Self> {
         const VIS_PATH: &str = "vis.json";
-        let mut f = HashMap::new();
+        let mut f = HashMap::default();
         f.insert(0, Font::new()?);
         let io = Io::new(dp_to_px, scr_sz);
         let mem = Memory::from_path(VIS_PATH);

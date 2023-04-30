@@ -23,3 +23,4 @@ serde = {version = "1.0.160", features = ["derive"]}
 serde_json = {version = "1.0.96", features = ["arbitrary_precision"]}
 tempfile = "3.5.0"
 typetag = "0.2.8"
+ahash = "0.8.3"

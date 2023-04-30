@@ -1,6 +1,6 @@
 use std::collections::hash_map::IterMut;
-use std::collections::HashMap;
 
+use ahash::HashMap;
 use derive_more::Display;
 use rgb::RGBA8;
 
@@ -66,7 +66,7 @@ impl Default for TexStore {
 impl TexStore {
     #[must_use]
     pub fn new() -> Self {
-        Self { last_id: 1usize, texs: HashMap::new() }
+        Self { last_id: 1usize, texs: HashMap::default() }
     }
 
     pub fn insert(&mut self, sz: TexSz) -> TexId {
