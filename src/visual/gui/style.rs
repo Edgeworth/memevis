@@ -1,22 +1,22 @@
 use std::cell::Cell;
-use std::sync::Arc;
+use std::rc::Rc;
 
 use rgb::{ComponentMap, RGBA};
 
 use crate::visual::gui::layer::GblTf;
 use crate::visual::render::painter::PaintCtx;
-use crate::visual::types::{lsz, Col, LclSz, LclZ};
+use crate::visual::types::{Col, LclSz, LclZ, lsz};
 use crate::visual::vis::FontId;
 
 pub struct PaintCtxScope {
-    pctx: Arc<Cell<PaintCtx>>,
+    pctx: Rc<Cell<PaintCtx>>,
     restore_pctx: PaintCtx,
 }
 
 #[allow(dead_code)]
 impl PaintCtxScope {
     #[must_use]
-    pub fn new(pctx: Arc<Cell<PaintCtx>>, restore_pctx: PaintCtx) -> Self {
+    pub fn new(pctx: Rc<Cell<PaintCtx>>, restore_pctx: PaintCtx) -> Self {
         Self { pctx, restore_pctx }
     }
 

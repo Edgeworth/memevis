@@ -63,6 +63,13 @@ impl Default for TexStore {
     }
 }
 
+impl<'a> IntoIterator for &'a mut TexStore {
+    type Item = (&'a TexId, &'a mut Tex);
+    type IntoIter = IterMut<'a, TexId, Tex>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.texs.iter_mut()
+    }
+}
 impl TexStore {
     #[must_use]
     pub fn new() -> Self {

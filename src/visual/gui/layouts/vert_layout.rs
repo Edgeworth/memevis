@@ -5,7 +5,7 @@ use crate::visual::gui::layouts::hint::Hint;
 use crate::visual::gui::layouts::layout::{LayoutInfo, LayoutStrategy};
 use crate::visual::gui::layouts::util::compute_child_info;
 use crate::visual::gui::ui::Ui;
-use crate::visual::types::{lz, LclPt, LclSz};
+use crate::visual::types::{LclPt, LclSz, lz};
 
 #[derive(Debug, Copy, Clone)]
 pub struct VertLayout {

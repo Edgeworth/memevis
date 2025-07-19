@@ -3,7 +3,7 @@ use std::fs::File;
 use std::path::{Path, PathBuf};
 
 use ahash::HashMap;
-use eyre::{eyre, Result};
+use eyre::{Result, eyre};
 use serde::{Deserialize, Serialize};
 
 use crate::visual::gui::layer::GblLayer;

@@ -1,11 +1,11 @@
 use std::cmp::max;
 
-use eyre::{eyre, Result};
+use eyre::{Result, eyre};
 use rgb::RGBA8;
 
-use crate::visual::render::texture::{TexId, TexStore, TextureLayer};
-use crate::visual::types::{trt, TexPt, TexRt, TexSz, TexUvRect};
 use crate::visual::Rt2D;
+use crate::visual::render::texture::{TexId, TexStore, TextureLayer};
+use crate::visual::types::{TexPt, TexRt, TexSz, TexUvRect, trt};
 
 pub type AtlasHandle = i32;
 

@@ -3,7 +3,7 @@ use eyre::Result;
 use crate::visual::gui::layer::LclLayer;
 use crate::visual::gui::layouts::hint::Grav;
 use crate::visual::gui::ui::Ui;
-use crate::visual::types::{lpt, lz, LclPt, LclRt};
+use crate::visual::types::{LclPt, LclRt, lpt, lz};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Frag {

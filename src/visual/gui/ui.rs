@@ -1,5 +1,5 @@
 use std::cell::Cell;
-use std::sync::Arc;
+use std::rc::Rc;
 
 use eyre::Result;
 use lyon::math::Angle;
@@ -14,12 +14,12 @@ use crate::visual::gui::style::{PaintCtxScope, Style};
 use crate::visual::gui::text::Frag;
 use crate::visual::gui::widgets::button::Button;
 use crate::visual::gui::widgets::label::Label;
-use crate::visual::gui::widgets::widget::{combine_ids, Resp, Widget};
+use crate::visual::gui::widgets::widget::{Resp, Widget, combine_ids};
 use crate::visual::gui::widgets::window::Window;
 use crate::visual::io::Io;
 use crate::visual::render::painter::{PaintCtx, Painter};
 use crate::visual::render::texture::TextureLayer;
-use crate::visual::types::{LclPt, LclRt, LclSz, Pt, MAX_Z};
+use crate::visual::types::{LclPt, LclRt, LclSz, MAX_Z, Pt};
 use crate::visual::vis::{Memory, Vis};
 
 pub struct Ui<'a> {
@@ -27,14 +27,14 @@ pub struct Ui<'a> {
     v: &'a mut Vis,
     l: Layout,
     id: String,
-    pctx: Arc<Cell<PaintCtx>>,
+    pctx: Rc<Cell<PaintCtx>>,
 }
 
 impl<'a> Ui<'a> {
     pub fn new(v: &'a mut Vis, l: Layout, id: &str) -> Self {
         let s = Style::new();
         let pctx = PaintCtx { tf: l.info().gtf, col: s.light_col, ..Default::default() };
-        Self { s, v, l, id: id.to_owned(), pctx: Arc::new(Cell::new(pctx)) }
+        Self { s, v, l, id: id.to_owned(), pctx: Rc::new(Cell::new(pctx)) }
     }
 
     #[must_use]
@@ -72,14 +72,14 @@ impl<'a> Ui<'a> {
     #[must_use]
     pub fn push(&self) -> PaintCtxScope {
         let restore_pctx = self.pctx.get();
-        let pctx = Arc::clone(&self.pctx);
+        let pctx = Rc::clone(&self.pctx);
         PaintCtxScope::new(pctx, restore_pctx)
     }
 }
 
 // Layout
 #[allow(dead_code)]
-impl<'a> Ui<'a> {
+impl Ui<'_> {
     pub fn child<LayoutF, UiF>(
         &mut self,
         hint: &Hint,
@@ -151,11 +151,7 @@ impl<'a> Ui<'a> {
     }
 
     pub fn scrolled(&mut self, id: &str, l: LclLayer) -> Pt {
-        if self.hovered(id, l) {
-            self.io().mouse_scroll
-        } else {
-            Pt::zero()
-        }
+        if self.hovered(id, l) { self.io().mouse_scroll } else { Pt::zero() }
     }
 
     pub fn pressed(&mut self, id: &str, l: LclLayer) -> bool {
@@ -181,7 +177,7 @@ impl<'a> Ui<'a> {
 }
 
 // Widgets.
-impl<'a> Ui<'a> {
+impl Ui<'_> {
     pub fn label(&mut self, text: &str) -> Result<Resp> {
         Label::new(text).ui(self)
     }
@@ -201,7 +197,7 @@ impl<'a> Ui<'a> {
 
 // Drawing.
 #[allow(dead_code)]
-impl<'a> Ui<'a> {
+impl Ui<'_> {
     pub fn text_sz(&mut self, f: &Frag) -> Result<LclSz> {
         let sz = self.v.layout_text(&f.text, f.sz)?;
         Ok(self.l.info().gtf.inv().sz(sz))

@@ -1,14 +1,14 @@
 use eyre::Result;
-use glium::glutin::window::CursorIcon;
 use lyon::math::Angle;
 use lyon::path::Path;
 use rgb::RGBA8;
+use winit::window::CursorIcon;
 
 use crate::visual::colors::WHITE;
 use crate::visual::gui::layer::GblTf;
 use crate::visual::render::atlas::{Atlas, AtlasHandle};
 use crate::visual::render::texture::{TexStore, TextureLayer};
-use crate::visual::types::{lz, Col, LclPt, LclRt, LclSz, LclZ, TexPt, TexSz};
+use crate::visual::types::{Col, LclPt, LclRt, LclSz, LclZ, TexPt, TexSz, lz};
 
 pub type TexHandle = AtlasHandle;
 

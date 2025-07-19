@@ -1,5 +1,5 @@
 use ahash::HashMap;
-use eyre::{eyre, Result};
+use eyre::{Result, eyre};
 use harfbuzz_rs::ClusterLevel::MonotoneCharacters;
 use harfbuzz_rs::GlyphInfo;
 use rgb::RGBA8;
@@ -9,14 +9,14 @@ use crate::any::Any;
 use crate::visual::gui::layer::GblLayer;
 use crate::visual::render::atlas::AtlasHandle;
 use crate::visual::render::painter::{PaintCtx, Painter};
-use crate::visual::types::{grt, gsz, tpt, GblRt, GblSz, Rt2D};
+use crate::visual::types::{GblRt, GblSz, Rt2D, grt, gsz, tpt};
 
 static FONT_DATA: &[u8] = include_bytes!("../../assets/OpenSans-Regular.ttf");
 
 pub struct Font {
     _ft: ft::Library,
-    render_font: ft::Face,
-    layout_font: hb::Owned<hb::Font<'static>>,
+    render_face: ft::Face,
+    layout_face: hb::Owned<hb::Font<'static>>,
     m: HashMap<(u32, u32), RenderedGlyph>,
 }
 
@@ -43,10 +43,10 @@ struct LayoutInfo {
 impl Font {
     pub fn new() -> Result<Self> {
         let freetype = ft::Library::init()?; // TODO: Need to pull this out for multiple fonts.
-        let render_font = freetype.new_memory_face(FONT_DATA.to_owned(), 0)?;
-        let layout_font = hb::Font::new(hb::Face::from_bytes(FONT_DATA, 0));
+        let render_face = freetype.new_memory_face(FONT_DATA.to_owned(), 0)?;
+        let layout_face = hb::Font::new(hb::Face::from_bytes(FONT_DATA, 0));
 
-        Ok(Self { _ft: freetype, render_font, layout_font, m: HashMap::default() })
+        Ok(Self { _ft: freetype, render_face, layout_face, m: HashMap::default() })
     }
 
     fn ensure_glyph(
@@ -58,10 +58,10 @@ impl Font {
     ) -> Result<&RenderedGlyph> {
         #[allow(clippy::map_entry)]
         if !self.m.contains_key(&(id, px)) {
-            self.render_font.set_pixel_sizes(px, px)?;
+            self.render_face.set_pixel_sizes(px, px)?;
 
-            self.render_font.load_glyph(id, ft::face::LoadFlag::RENDER)?;
-            let g = self.render_font.glyph();
+            self.render_face.load_glyph(id, ft::face::LoadFlag::RENDER)?;
+            let g = self.render_face.glyph();
             let b = g.bitmap();
             let bb = Rt2D::<i32, Any>::new(g.bitmap_left(), g.bitmap_top(), b.width(), b.rows());
 
@@ -74,7 +74,7 @@ impl Font {
             }
 
             let vmetrics =
-                self.render_font.size_metrics().ok_or_else(|| eyre!("missing font vmetrics"))?;
+                self.render_face.size_metrics().ok_or_else(|| eyre!("missing font vmetrics"))?;
             let ascender_dp = vmetrics.ascender as f64 / 64.0 / dp_to_px;
             let bb = bb.to_f64() / dp_to_px;
             let bb = grt(bb.x, ascender_dp - bb.y, bb.w, bb.h);
@@ -87,16 +87,16 @@ impl Font {
         // Take the |dp_size| to be the size of the EM square. The number of pixels
         // of each side will be |px_size|.
         let px_size = (dp * dp_to_px).round() as u32;
-        self.layout_font.set_ppem(px_size, px_size);
-        self.layout_font.set_scale(px_size as i32 * 64, px_size as i32 * 64);
-        self.render_font.set_pixel_sizes(px_size, px_size)?;
+        self.layout_face.set_ppem(px_size, px_size);
+        self.layout_face.set_scale(px_size as i32 * 64, px_size as i32 * 64);
+        self.render_face.set_pixel_sizes(px_size, px_size)?;
 
         let buf = hb::UnicodeBuffer::new().set_cluster_level(MonotoneCharacters).add_str(text);
-        let shape = hb::shape(&self.layout_font, buf, &[]);
+        let shape = hb::shape(&self.layout_face, buf, &[]);
         let positions = shape.get_glyph_positions();
         let infos = shape.get_glyph_infos();
         let vmetrics =
-            self.render_font.size_metrics().ok_or_else(|| eyre!("missing font vmetrics"))?;
+            self.render_face.size_metrics().ok_or_else(|| eyre!("missing font vmetrics"))?;
         let height_dp = (vmetrics.ascender - vmetrics.descender) as f64 / 64.0 / dp_to_px;
 
         let mut layout_info =

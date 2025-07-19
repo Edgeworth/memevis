@@ -2,15 +2,15 @@ use std::collections::BTreeMap;
 use std::convert::TryInto;
 
 use ahash::HashMap;
-use eyre::{eyre, Result};
+use eyre::{Result, eyre};
 use glium::glutin::surface::WindowSurface;
 use glium::index::PrimitiveType;
 use glium::program::ProgramCreationInput;
 use glium::texture::{RawImage2d, Texture2d};
 use glium::uniforms::{AsUniformValue, UniformValue, Uniforms};
 use glium::{
-    implement_vertex, Blend, Depth, DepthTest, Display, DrawParameters, Frame, IndexBuffer,
-    Program, Surface, VertexBuffer,
+    Blend, Depth, DepthTest, Display, DrawParameters, Frame, IndexBuffer, Program, Surface,
+    VertexBuffer, implement_vertex,
 };
 use lyon::geom::LineSegment;
 use lyon::lyon_tessellation::{FillVertex, StrokeVertex};
@@ -22,11 +22,12 @@ use lyon::tessellation::{
     StrokeTessellator, StrokeVertexConstructor, VertexBuffers,
 };
 use rgb::ComponentBytes;
+use winit::window::Window;
 
 use crate::errors::StringErrorConversion;
 use crate::visual::render::painter::{PaintCtx, PaintOp, Painter};
 use crate::visual::render::texture::{TexId, TexStore};
-use crate::visual::types::{lsz, tpt, Col, GblZ, TexRt, TexSz};
+use crate::visual::types::{Col, GblZ, TexRt, TexSz, lsz, tpt};
 
 const TOLERANCE: f32 = 0.1;
 
@@ -102,6 +103,7 @@ pub struct GliumRenderer {
 
 struct DrawContext<'a> {
     disp: &'a Display<WindowSurface>,
+    win: &'a Window,
     frame: &'a mut Frame,
     draw_params: DrawParameters<'a>,
 }
@@ -135,11 +137,13 @@ impl GliumRenderer {
     pub fn draw(
         &mut self,
         disp: &Display<WindowSurface>,
+        win: &Window,
         frame: &mut Frame,
         p: &mut Painter,
     ) -> Result<()> {
         let mut dtx = DrawContext {
             disp,
+            win,
             frame,
             draw_params: DrawParameters {
                 depth: Depth { test: DepthTest::Overwrite, ..Default::default() },
@@ -149,7 +153,7 @@ impl GliumRenderer {
         };
         self.update_textures(&mut dtx, &mut p.ts)?;
         self.render(&mut dtx, &p.ops)?;
-        disp.gl_window().window().set_cursor_icon(p.cursor);
+        win.set_cursor(p.cursor);
         Ok(())
     }
 
@@ -182,7 +186,7 @@ impl GliumRenderer {
             BTreeMap::new();
 
         let fopt = FillOptions::tolerance(TOLERANCE);
-        for (pctx, op) in ops.iter() {
+        for (pctx, op) in ops {
             let tf = pctx.tf;
             let z = tf.z(pctx.z);
 
@@ -192,7 +196,7 @@ impl GliumRenderer {
             }
             let mut buf = BuffersBuilder::new(geom, VertexCtor::new(pctx.col));
 
-            let line_width_px = pctx.line_width * dtx.disp.gl_window().window().scale_factor();
+            let line_width_px = pctx.line_width * dtx.win.scale_factor();
             let sopt = StrokeOptions::tolerance(TOLERANCE).with_line_width(line_width_px as f32);
 
             let mut b = Path::builder();
@@ -325,9 +329,8 @@ impl GliumRenderer {
             }
         }
 
-        let gl = dtx.disp.gl_window();
-        let sz = TexSz::from(gl.window().inner_size()).to_f64();
-        let sf = gl.window().scale_factor();
+        let sz = TexSz::from(dtx.win.inner_size()).to_f64();
+        let sf = dtx.win.scale_factor();
         let dp = sz / sf;
         let mut uni = UniformMap(HashMap::default());
         uni.add_val::<(f32, f32)>("screen_dp", (dp.w as f32, dp.h as f32));

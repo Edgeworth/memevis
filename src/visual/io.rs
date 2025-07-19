@@ -1,10 +1,10 @@
 use std::time::Instant;
 
-use glium::glutin::event::{ElementState, MouseButton, MouseScrollDelta, WindowEvent};
-use glium::glutin::window::Window;
 use num_traits::Zero;
+use winit::event::{ElementState, MouseButton, MouseScrollDelta, WindowEvent};
+use winit::window::Window;
 
-use crate::visual::types::{pt, GblPt, GblSz, GblZ, Pt, Pt2D};
+use crate::visual::types::{GblPt, GblSz, GblZ, Pt, Pt2D, pt};
 
 #[derive(Debug)]
 pub struct Io {
@@ -113,8 +113,8 @@ impl Io {
         }
     }
 
-    pub fn process_event(&mut self, w: &Window, e: WindowEvent<'_>) {
-        match e {
+    pub fn process_event(&mut self, w: &Window, e: &WindowEvent) {
+        match *e {
             WindowEvent::Resized(ps) => self.scr_sz = ps.to_logical::<f64>(w.scale_factor()).into(),
             WindowEvent::CursorMoved { position, .. } => {
                 self.mouse_pt = position.to_logical::<f64>(w.scale_factor()).into();
@@ -131,9 +131,8 @@ impl Io {
                     self.mouse_pressed_pt = self.mouse_pt;
                 }
             }
-            WindowEvent::ScaleFactorChanged { scale_factor, new_inner_size } => {
+            WindowEvent::ScaleFactorChanged { scale_factor, .. } => {
                 self.dp_to_px = scale_factor;
-                self.scr_sz = new_inner_size.to_logical::<f64>(w.scale_factor()).into();
             }
             _ => {}
         }

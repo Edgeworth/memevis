@@ -3,13 +3,13 @@ use std::marker::PhantomData;
 use std::ops::Neg;
 
 use derive_more::{Display, From};
-use glium::glutin::dpi::{LogicalPosition, LogicalSize, PhysicalSize};
 use lyon::math::Box2D;
 use num::{Num, NumCast, ToPrimitive};
 use num_traits::Zero;
 use paste::paste;
 use rgb::RGBA;
 use serde::{Deserialize, Serialize};
+use winit::dpi::{LogicalPosition, LogicalSize, PhysicalSize};
 
 use crate::any::{Any, Basic};
 
@@ -408,7 +408,7 @@ impl<T: Number, U> From<(T, T)> for Pt2D<T, U> {
 }
 
 impl<T: Number, U> From<&(T, T)> for Pt2D<T, U> {
-    fn from((ref x, ref y): &(T, T)) -> Self {
+    fn from((x, y): &(T, T)) -> Self {
         Pt2D::new(*x, *y)
     }
 }

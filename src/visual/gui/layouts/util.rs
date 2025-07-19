@@ -3,7 +3,7 @@ use num_traits::Zero;
 use crate::visual::gui::layer::{LclLayer, PrtLayer, PrtTf};
 use crate::visual::gui::layouts::hint::{Hint, SzOpt};
 use crate::visual::gui::layouts::layout::LayoutInfo;
-use crate::visual::types::{lsz, LclPt, LclRt, LclSz, LclZ};
+use crate::visual::types::{LclPt, LclRt, LclSz, LclZ, lsz};
 
 fn clamp(mut sz: LclSz, min: Option<LclSz>, max: Option<LclSz>) -> LclSz {
     if let Some(min) = min {
@@ -39,10 +39,10 @@ fn select_sz_2d(
 ) -> Option<LclSz> {
     let w_sz = select_sz(min, max, parent_req, child_req, opt.0);
     let h_sz = select_sz(min, max, parent_req, child_req, opt.1);
-    if let Some(w_sz) = w_sz {
-        if let Some(h_sz) = h_sz {
-            return Some(lsz(w_sz.w, h_sz.h));
-        }
+    if let Some(w_sz) = w_sz
+        && let Some(h_sz) = h_sz
+    {
+        return Some(lsz(w_sz.w, h_sz.h));
     }
     None
 }

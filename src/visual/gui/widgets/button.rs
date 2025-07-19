@@ -38,10 +38,10 @@ impl<F: FnOnce(&mut Ui<'_>)> Widget for Button<F> {
             ui.s.light_col.with_alpha(0.2)
         };
         let col = if ui.pressed(&id, l) { ui.s.light_col.with_alpha(0.1) } else { col };
-        if ui.clicked(&id, l) {
-            if let Some(f) = self.cb.take() {
-                f(ui);
-            }
+        if ui.clicked(&id, l)
+            && let Some(f) = self.cb.take()
+        {
+            f(ui);
         }
 
         let scope = ui.push();

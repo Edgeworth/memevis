@@ -8,7 +8,7 @@ use crate::visual::gui::layouts::hint::Hint;
 use crate::visual::gui::layouts::layout::{LayoutInfo, LayoutStrategy};
 use crate::visual::gui::layouts::util::compute_child_info;
 use crate::visual::gui::ui::Ui;
-use crate::visual::types::{lrt, lz, LclPt, LclRt, LclSz, LclZ, ZOrder};
+use crate::visual::types::{LclPt, LclRt, LclSz, LclZ, ZOrder, lrt, lz};
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 enum ResizeDir {
@@ -126,7 +126,8 @@ impl LayoutStrategy for ResizeLayout {
 
     fn child_info(&mut self, ui: &mut Ui<'_>, hint: &Hint, child_id: &str) -> LayoutInfo {
         let mut w = self.state(ui).wins.get(child_id).copied();
-        let info = if let Some(ref mut w) = w {
+
+        if let Some(ref mut w) = w {
             *w = self.interact(ui, child_id, *w);
             self.state(ui).wins.insert(child_id.to_owned(), *w);
 
@@ -138,9 +139,7 @@ impl LayoutStrategy for ResizeLayout {
             )
         } else {
             compute_child_info(self.info(), self.loc, self.next_z(ui), hint)
-        };
-
-        info
+        }
     }
 
     fn place_layer(&mut self, ui: &mut Ui<'_>, l: &LclLayer, child_id: &str) {
