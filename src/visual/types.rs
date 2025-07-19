@@ -218,7 +218,7 @@ macro_rules! binop_vec2_scalar {
 
 #[repr(C)]
 #[derive(Debug, Default, Eq, PartialEq, Hash, Copy, Clone, Display, Serialize, Deserialize)]
-#[display(fmt = "({x}, {y}, {w}, {h})")]
+#[display("({x}, {y}, {w}, {h})")]
 pub struct Rt2D<T: Number, U> {
     pub x: T,
     pub y: T,
@@ -339,7 +339,7 @@ binop_vec4_vec4!(Rt2D<T, U>, x, y, w, h; Rt2D<T, U>, x, y, w, h; Add, add, +; Su
 
 #[repr(C)]
 #[derive(Debug, Default, Eq, PartialEq, Hash, Copy, Clone, Display, Serialize, Deserialize)]
-#[display(fmt = "({x}, {y})")]
+#[display("({x}, {y})")]
 pub struct Pt2D<T: Number, U> {
     pub x: T,
     pub y: T,
@@ -424,7 +424,7 @@ binop_vec2_vec2!(Pt2D<T, U>, x, y; Sz2D<T, U>, w, h; Add, add, +; Sub, sub, -;);
 
 #[repr(C)]
 #[derive(Debug, Default, Eq, PartialEq, Hash, Copy, Clone, Display, Serialize, Deserialize)]
-#[display(fmt = "({w}, {h})")]
+#[display("({w}, {h})")]
 pub struct Sz2D<T: Number, U> {
     pub w: T,
     pub h: T,
@@ -520,7 +520,7 @@ binop_vec2_scalar!(Sz2D<T, U>, w, h; f64, u32, i32; Mul, mul, *; Div, div, /;);
     Serialize,
     Deserialize,
 )]
-#[display(fmt = "Z({z})")]
+#[display("Z({z})")]
 pub struct ZOrder<U> {
     pub z: i32,
     _u: PhantomData<U>,

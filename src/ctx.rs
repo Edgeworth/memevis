@@ -1,24 +1,24 @@
 use eyre::Result;
-use glium::glutin::dpi::LogicalSize;
-use glium::glutin::event::{Event, WindowEvent};
-use glium::glutin::event_loop::{ControlFlow, EventLoop};
-use glium::glutin::window::WindowBuilder;
-use glium::glutin::{GlProfile, Robustness};
+use glium::glutin::context::{GlProfile, Robustness};
+use glium::glutin::surface::WindowSurface;
 use glium::{glutin, Display, Surface};
+use winit::dpi::LogicalSize;
+use winit::event::{Event, WindowEvent};
+use winit::event_loop::{ControlFlow, EventLoop};
 
 use crate::visual::gui::ui::Ui;
 use crate::visual::render::glium_renderer::GliumRenderer;
 use crate::visual::vis::Vis;
 
 pub struct Ctx {
-    disp: Display,
+    disp: Display<WindowSurface>,
     vis: Vis,
     rend: GliumRenderer,
 }
 
 impl Ctx {
     pub fn new(ev: &EventLoop<()>) -> Result<Self> {
-        let gl = glutin::ContextBuilder::new()
+        let gl = glutin::context::ContextAttributesBuilder::new()
             .with_vsync(true)
             .with_srgb(false) // We do our own correction in shaders.
             .with_multisampling(4)
@@ -45,7 +45,7 @@ impl Ctx {
 
     fn event_loop(
         &mut self,
-        e: Event<'_, ()>,
+        e: Event<()>,
         flow: &mut ControlFlow,
         f: &mut impl FnMut(&mut Ui<'_>) -> Result<()>,
     ) -> Result<()> {

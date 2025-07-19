@@ -6,7 +6,7 @@ use crate::visual::gui::layouts::layout::Layout;
 use crate::visual::gui::layouts::vert_layout::VertLayout;
 use crate::visual::gui::ui::Ui;
 use crate::visual::gui::widgets::widget::{Resp, Widget};
-use crate::visual::types::{lz, LclRt};
+use crate::visual::types::{LclRt, lz};
 
 #[derive(Debug, Clone)]
 pub struct Window<F: FnMut(&mut Ui<'_>) -> Result<()>> {
@@ -37,11 +37,11 @@ impl<F: FnMut(&mut Ui<'_>) -> Result<()>> Widget for Window<F> {
         )?;
 
         let scope = ui.push();
-        scope.z(l.z - lz(1)).col(ui.s.dark_col.alpha(0.95));
+        scope.z(l.z - lz(1)).col(ui.s.dark_col.with_alpha(0.95));
         ui.fill_rrt(l.r, 4.0);
         title_r.w = l.r.w; // Expand to width of window.
 
-        scope.col(ui.s.acc3_col.alpha(0.95));
+        scope.col(ui.s.acc3_col.with_alpha(0.95));
         ui.stroke_rrt(title_r, 4.0);
 
         Ok(Resp { l })

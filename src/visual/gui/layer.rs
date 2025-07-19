@@ -10,7 +10,7 @@ use crate::any::Basic;
 use crate::visual::types::{GblType, LclType, PrtType, Pt2D, Rt2D, Sz2D, ZOrder};
 
 #[derive(Debug, Default, PartialEq, Copy, Clone, Display, Serialize, Deserialize)]
-#[display(fmt = "Layer({r}; {z})")]
+#[display("Layer({r}; {z})")]
 pub struct Layer<U> {
     pub r: Rt2D<f64, U>,
     pub z: ZOrder<U>,

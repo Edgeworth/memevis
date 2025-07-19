@@ -5,7 +5,7 @@ use crate::visual::gui::layouts::layout::Layout;
 use crate::visual::gui::layouts::vert_layout::VertLayout;
 use crate::visual::gui::ui::Ui;
 use crate::visual::gui::widgets::label::Label;
-use crate::visual::gui::widgets::widget::{combine_ids, Resp, Widget};
+use crate::visual::gui::widgets::widget::{Resp, Widget, combine_ids};
 
 #[derive(Debug)]
 pub struct Button<F: FnOnce(&mut Ui<'_>)> {
@@ -32,9 +32,12 @@ impl<F: FnOnce(&mut Ui<'_>)> Widget for Button<F> {
             },
         )?;
 
-        let col =
-            if ui.hovered(&id, l) { ui.s.light_col.alpha(0.3) } else { ui.s.light_col.alpha(0.2) };
-        let col = if ui.pressed(&id, l) { ui.s.light_col.alpha(0.1) } else { col };
+        let col = if ui.hovered(&id, l) {
+            ui.s.light_col.with_alpha(0.3)
+        } else {
+            ui.s.light_col.with_alpha(0.2)
+        };
+        let col = if ui.pressed(&id, l) { ui.s.light_col.with_alpha(0.1) } else { col };
         if ui.clicked(&id, l) {
             if let Some(f) = self.cb.take() {
                 f(ui);

@@ -26,13 +26,20 @@ fix:
   __CARGO_FIX_YOLO=1 cargo fix --workspace --all-features --all-targets --edition-idioms --broken-code
   __CARGO_FIX_YOLO=1 cargo clippy --workspace --all-targets --all-features --fix -Z unstable-options --broken-code
   cargo fmt --all
-  cargo udeps --all-features --all-targets --workspace
+  pre-commit run --all-files
 
 update:
   rustup update
   cargo install cargo-udeps cargo-edit
-  cargo upgrade --incompatible --exclude freetype-rs
+  # Need to use git repo, see https://github.com/killercup/cargo-edit/issues/869
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL=git cargo fetch
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL=git cargo upgrade --incompatible --exclude freetype-rs
   cargo update
   cargo build --workspace --all-features --all-targets
   pre-commit autoupdate
-  SETUPTOOLS_USE_DISTUTILS=stdlib pre-commit run --all-files
+
+check:
+  cargo check --workspace --all-features --all-targets
+  cargo clippy --workspace --all-features --all-targets -- -D warnings
+  cargo udeps --all-features --all-targets --workspace
+  pre-commit run --all-files

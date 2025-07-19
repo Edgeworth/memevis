@@ -1,7 +1,7 @@
 use ahash::HashMap;
-use glium::glutin::window::CursorIcon;
 use num_traits::Zero;
 use serde::{Deserialize, Serialize};
+use winit::window::CursorIcon;
 
 use crate::visual::gui::layer::LclLayer;
 use crate::visual::gui::layouts::hint::Hint;

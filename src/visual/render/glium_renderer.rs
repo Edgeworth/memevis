@@ -3,6 +3,7 @@ use std::convert::TryInto;
 
 use ahash::HashMap;
 use eyre::{eyre, Result};
+use glium::glutin::surface::WindowSurface;
 use glium::index::PrimitiveType;
 use glium::program::ProgramCreationInput;
 use glium::texture::{RawImage2d, Texture2d};
@@ -100,7 +101,7 @@ pub struct GliumRenderer {
 }
 
 struct DrawContext<'a> {
-    disp: &'a Display,
+    disp: &'a Display<WindowSurface>,
     frame: &'a mut Frame,
     draw_params: DrawParameters<'a>,
 }
@@ -109,7 +110,7 @@ const VERTEX: &str = include_str!("../../assets/shader.vert");
 const FRAG: &str = include_str!("../../assets/shader.frag");
 
 impl GliumRenderer {
-    pub fn new(disp: &Display) -> Result<Self> {
+    pub fn new(disp: &Display<WindowSurface>) -> Result<Self> {
         let prog = Program::new(
             disp,
             ProgramCreationInput::SourceCode {
@@ -131,7 +132,12 @@ impl GliumRenderer {
         })
     }
 
-    pub fn draw(&mut self, disp: &Display, frame: &mut Frame, p: &mut Painter) -> Result<()> {
+    pub fn draw(
+        &mut self,
+        disp: &Display<WindowSurface>,
+        frame: &mut Frame,
+        p: &mut Painter,
+    ) -> Result<()> {
         let mut dtx = DrawContext {
             disp,
             frame,
